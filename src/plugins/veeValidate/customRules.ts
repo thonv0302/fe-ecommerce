@@ -46,7 +46,7 @@ export function defineAddressRules() {
     if (value === target) {
       return true;
     }
-    return 'Passwords must match';
+    return 'Confirm password must match';
   });
 
   defineRule('phone', (value: string) => {

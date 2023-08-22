@@ -3,8 +3,10 @@
     <nav>
       <div class="bg-gray-900">
         <div class="flex justify-between p-2">
-          <button class="p-2">Sign in</button>
           <RouterLink :to="{ name: ROUTE_AUTH.login.name }" class="p-2"
+            >Sign in</RouterLink
+          >
+          <RouterLink :to="{ name: ROUTE_AUTH.register.name }" class="p-2"
             >Create an account</RouterLink
           >
         </div>

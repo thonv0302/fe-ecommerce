@@ -1,20 +1,45 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
-import ILoginInput from '@/models/auth';
+import { useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
+import { ArrowSmallLeftIcon } from '@heroicons/vue/24/solid';
+import { ILoginInput } from '@/models/auth';
+import { ROUTE_HOME, ROUTE_ADMIN, ROUTE_AUTH } from '../../constants/routers';
+
+import { useAuthStore } from '../../stores/authStore';
+
+const router = useRouter();
+const authStore = useAuthStore();
+const { rememberMe } = storeToRefs(authStore);
 
 const loginInfo = reactive<ILoginInput>({
-  email: '',
-  password: '',
+  email: 'nguyenvietthoit1@gmail.com',
+  password: 'abc123',
 });
+
+const onLogin = async () => {
+  await authStore.login(loginInfo);
+  router.push({
+    name: ROUTE_ADMIN.admin.name,
+  });
+};
+
+console.log('import.meta.env: ', import.meta.env);
 </script>
 
 <template>
-  <h2 class="mt-6 text-2xl font-extrabold text-gray-900">
-    Sign in to your account
+  <h2 class="text-2xl font-extrabold text-gray-900 flex items-center">
+    <RouterLink
+      :to="{
+        name: ROUTE_HOME.home.name,
+      }"
+      class="mr-2"
+      ><ArrowSmallLeftIcon class="w-6 h-6" /></RouterLink
+    >Sign in to your account
   </h2>
 
   <div class="mt-8">
-    <VeeForm class="space-y-6" v-slot="{ errors }">
+    <VeeForm class="space-y-6" v-slot="{ errors }" @submit="onLogin">
       <div>
         <label for="email" class="block text-sm font-medium text-gray-700">
           Email address
@@ -69,6 +94,8 @@ const loginInfo = reactive<ILoginInput>({
             id="remember-me"
             name="remember-me"
             type="checkbox"
+            v-model="rememberMe"
+            :value="true"
             class="h-4 w-4 text-indigo-300 focus:ring-indigo-500 border-gray-100 rounded"
           />
           <label for="remember-me" class="ml-2 block text-sm text-gray-900">
@@ -92,6 +119,15 @@ const loginInfo = reactive<ILoginInput>({
         </button>
       </div>
     </VeeForm>
+
+    <div class="text-center mt-2">
+      <RouterLink
+        :to="{ name: ROUTE_AUTH.register.name }"
+        class="text-sm text-gray-600 hover:underline hover:text-blue-700"
+      >
+        Sign up an account.</RouterLink
+      >
+    </div>
   </div>
 
   <div class="mt-6 relative">
@@ -164,6 +200,7 @@ const loginInfo = reactive<ILoginInput>({
       </a>
     </div>
   </div>
+  <pre>{{}}</pre>
 </template>
 
 <style scoped></style>

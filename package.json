@@ -12,6 +12,7 @@
     "@heroicons/vue": "^2.0.18",
     "@vee-validate/rules": "^4.11.1",
     "@vueuse/core": "^10.2.1",
+    "@vueuse/integrations": "^10.3.0",
     "axios": "^1.4.0",
     "pinia": "^2.1.6",
     "universal-cookie": "^5.0.0",

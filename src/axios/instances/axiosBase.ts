@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
 export default class AxiosBase {
   protected axiosInstance: AxiosInstance;
@@ -11,6 +11,7 @@ export default class AxiosBase {
         Accept: 'application/json',
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
+        'x-api-key': import.meta.env.VITE_X_API_KEY,
       },
     };
 
