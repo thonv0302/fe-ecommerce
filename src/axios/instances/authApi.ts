@@ -14,12 +14,12 @@ export default class AuthApi extends AxiosBase {
     super(interceptors, baseURL);
   }
 
-  public async login(loginInfor: ILoginInput): Promise<ILoginMetadata> {
+  public async login(loginInformation: ILoginInput): Promise<ILoginMetadata> {
     let metadata = {} as ILoginMetadata;
     try {
       const { status, data } = await this.axiosInstance.post<ILoginResponse>(
         this.prefixURL + 'login',
-        loginInfor
+        loginInformation
       );
 
       if (data && data.metadata && status === StatusCode.OK) {
@@ -49,34 +49,6 @@ export default class AuthApi extends AxiosBase {
     return metadata;
   }
 
-  public async refreshToken({
-    refreshTokenValue,
-    userId,
-  }: {
-    refreshTokenValue: string;
-    userId: string;
-  }): Promise<ILoginMetadata> {
-    let metadata = {} as ILoginMetadata;
-    try {
-      const { status, data } = await this.axiosInstance.post<ILoginResponse>(
-        this.prefixURL + 'handlerRefreshToken',
-        {},
-        {
-          headers: {
-            'x-rtoken-id': refreshTokenValue,
-            'x-client-id': userId,
-          },
-        }
-      );
-      if (data && data.metadata && status === StatusCode.OK) {
-        metadata = data.metadata;
-      }
-    } catch (error) {
-      throw error;
-    }
-
-    return metadata;
-  }
 }
 
 export const authApi = new AuthApi([]);
