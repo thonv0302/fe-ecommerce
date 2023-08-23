@@ -49,13 +49,23 @@ export default class AuthApi extends AxiosBase {
     return metadata;
   }
 
-  public async refreshToken(pRefreshToken: any): Promise<ILoginMetadata> {
+  public async refreshToken({
+    refreshTokenValue,
+    userId,
+  }: {
+    refreshTokenValue: string;
+    userId: string;
+  }): Promise<ILoginMetadata> {
     let metadata = {} as ILoginMetadata;
     try {
       const { status, data } = await this.axiosInstance.post<ILoginResponse>(
         this.prefixURL + 'handlerRefreshToken',
+        {},
         {
-          refreshToken: pRefreshToken,
+          headers: {
+            'x-rtoken-id': refreshTokenValue,
+            'x-client-id': userId,
+          },
         }
       );
       if (data && data.metadata && status === StatusCode.OK) {

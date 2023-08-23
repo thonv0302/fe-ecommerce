@@ -19,6 +19,8 @@ export interface IShopResponse {
   userId: string;
   name: string;
   email: string;
+  iat?: number;
+  exp?: number;
 }
 
 export interface ILoginMetadata {

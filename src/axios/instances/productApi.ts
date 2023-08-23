@@ -12,7 +12,6 @@ export default class ProductApi extends AxiosBase {
 
   public async getAllProductPublish() {
     let metadata = [];
-    // debugger;
     try {
       const { status, data } = await this.axiosInstance.get<any>(
         this.prefixURL + 'published/all'
