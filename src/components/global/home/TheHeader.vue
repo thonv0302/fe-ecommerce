@@ -29,13 +29,7 @@
             <button class="p-2 lg:hidden" @click="openNavbar = true">
               <Bars3Icon class="w-6 h-6" />
             </button>
-            <a href="" class="p-2">
-              <!-- <img
-                src="https://tailwindui.com/img/logos/mark.svg?color=white"
-                alt=""
-                class="w-8 h-8"
-              /> -->
-            </a>
+            <a href="" class="p-2"> tho </a>
             <Teleport :disabled="!mdAndSmaller" to="body">
               <Transition name="slide">
                 <div

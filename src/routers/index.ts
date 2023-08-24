@@ -38,7 +38,6 @@ export const router = createRouter({
   routes,
 });
 
-// const ALLOWED_ROUTE_PREFIXES = [ROUTE_AUTH.login.name, ROUTE_HOME.home.name];
 const NOT_ALLOWED_ROUTE_PREFIXES = [ROUTE_ADMIN.admin.name];
 
 router.beforeResolve(async (to, from, next) => {

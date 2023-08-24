@@ -12,7 +12,10 @@ export default async function setup(
     async (err: any) => {
       const originalConfig = err.config;
       const authStore = useAuthStore();
-      if (!originalConfig._retry) {
+      if (
+        err.response.status === StatusCode.UNAUTHORIZED &&
+        !originalConfig._retry
+      ) {
         try {
           await authStore.refreshToken();
           return axiosInstance(originalConfig);
