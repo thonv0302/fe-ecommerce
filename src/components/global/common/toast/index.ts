@@ -1,4 +1,4 @@
-import { inject, ref } from 'vue';
+import { ref } from 'vue';
 import { nanoid } from 'nanoid';
 
 enum ToastType {
@@ -11,7 +11,7 @@ enum ToastType {
 interface ToastOptions {
   type?: ToastType;
   title?: string;
-  dismissiable?: boolean;
+  dismissible?: boolean;
   timeout?: number;
 }
 interface Toast extends ToastOptions {
@@ -19,22 +19,20 @@ interface Toast extends ToastOptions {
   id: string;
 }
 
+const toasts = ref<Toast[]>([]);
 export const useToast = () => {
-  const toasts = ref(inject('toasts') as Array<any>);
 
   const toast = (message: string, options?: ToastOptions) => {
     const id = nanoid();
     const defaults: Partial<Toast> = {
       type: ToastType.Success,
-      dismissiable: true,
+      dismissible: true,
       timeout: 3000,
     };
 
     toasts.value.push({ id, ...defaults, message, ...options });
     let timeout =
       options?.timeout === undefined ? defaults.timeout : options.timeout;
-    console.log('toasts: ', toasts);
-
     if (timeout) {
       setTimeout(() => dismiss(id), timeout);
     }
@@ -42,12 +40,10 @@ export const useToast = () => {
 
   const dismiss = (idOrToast: string | Toast) => {
     const id = typeof idOrToast === 'string' ? idOrToast : idOrToast.id;
-    toasts.value = toasts.value.filter((toast) => toast.id !== id);
+    toasts.value = toasts.value.filter((toast: Toast) => toast.id !== id);
   };
 
   const success = (message: string, options: ToastOptions = {}) => {
-    console.log('asdfasfd');
-
     toast(message, { ...options, type: ToastType.Success });
   };
 

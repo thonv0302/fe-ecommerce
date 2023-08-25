@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useToast } from './index.ts';
-
 const { toasts } = useToast();
 </script>
 <template>
@@ -11,7 +10,7 @@ const { toasts } = useToast();
       <div
         v-for="toast in toasts"
         :key="toast.id"
-        class="mb-4 border-t-[1px] shadow-sm !pr-0 bg-red-500"
+        class="mb-4 border-t-[1px] shadow-sm !pr-0 bg-red-400"
         :class="`border-t-${toast.type}`"
       >
         <div class="flex justify-between sm:w-96 px-4">
@@ -22,7 +21,7 @@ const { toasts } = useToast();
             </div>
           </div>
           <button
-            v-if="toast.dismissiable"
+            v-if="toast.dismissible"
             class="p-0.5 px-1.5 transition rounded hover:bg-white absolute top-2 right-2"
           >
             x
