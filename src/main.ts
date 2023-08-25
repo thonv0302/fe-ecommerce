@@ -5,9 +5,9 @@ import { router } from './routers';
 import { createPinia } from 'pinia';
 
 import { veeValidatePlugin } from './plugins/veeValidate/veePlugin';
+// import { toastMessage } from './plugins/toast/index';
 
-createApp(App)
-  .use(router)
-  .use(createPinia())
-  .use(veeValidatePlugin)
-  .mount('#app');
+const app = createApp(App);
+app.provide('toasts', []);
+
+app.use(router).use(createPinia()).use(veeValidatePlugin).mount('#app');

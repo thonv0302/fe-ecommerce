@@ -1,34 +1,36 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-const alerts = ref([{
-    type: "success",
-    title: 'tho 123',
-    dismissiable: true,
-    timeout: 3000,
-    message: 'SADFSAFDSADF',
-    id: 12121212
-}])
+import { useToast } from './index.ts';
+
+const { toasts } = useToast();
 </script>
 <template>
-    <div class="fixed bottom-0 z-10 w-full p-2 right-2 sm:p-0 sm:w-auto sm:bottom-5">
-        <TransitionGroup name="list" tag="ul">
-            <div v-for="alert in alerts" :key="alert.id" class="mb-4 border-t-[1px] shadow-sm alert !pr-0"
-                :class="`border-t-${alert.type}`">
-                <div class="flex justify-between sm:w-96 px-4">
-                    <div class="flex items-center">
-                        <div>
-                            <div class="font-bold" v-if="alert.title">{{ alert.title }}</div>
-                            <div class="">{{ alert.message }}</div>
-                        </div>
-                    </div>
-                    <button v-if="alert.dismissiable"
-                        class="p-0.5 px-1.5 transition rounded hover:bg-white absolute top-2 right-2">
-                        x
-                    </button>
-                </div>
+  <div
+    class="fixed bottom-0 z-10 w-full p-2 right-2 sm:p-0 sm:w-auto sm:bottom-5"
+  >
+    <TransitionGroup name="list" tag="ul">
+      <div
+        v-for="toast in toasts"
+        :key="toast.id"
+        class="mb-4 border-t-[1px] shadow-sm !pr-0 bg-red-500"
+        :class="`border-t-${toast.type}`"
+      >
+        <div class="flex justify-between sm:w-96 px-4">
+          <div class="flex items-center">
+            <div>
+              <div class="font-bold" v-if="toast.title">{{ toast.title }}</div>
+              <div class="">{{ toast.message }}</div>
             </div>
-        </TransitionGroup>
-    </div>
+          </div>
+          <button
+            v-if="toast.dismissiable"
+            class="p-0.5 px-1.5 transition rounded hover:bg-white absolute top-2 right-2"
+          >
+            x
+          </button>
+        </div>
+      </div>
+    </TransitionGroup>
+  </div>
 </template>
 
 <style scoped>
@@ -36,22 +38,22 @@ const alerts = ref([{
 /* apply transition to moving elements */
 .list-enter-active,
 .list-leave-active {
-    transition: all 0.6s ease;
+  transition: all 0.6s ease;
 }
 
 .list-enter-from {
-    opacity: 0;
-    transform: translateX(60px);
+  opacity: 0;
+  transform: translateX(60px);
 }
 
 .list-leave-to {
-    opacity: 0;
-    transform: translateX(60px) translateY(-100%);
+  opacity: 0;
+  transform: translateX(60px) translateY(-100%);
 }
 
 /* ensure leaving items are taken out of layout flow so that moving
    animations can be calculated correctly. */
 .list-leave-active {
-    position: absolute;
+  position: absolute;
 }
 </style>
