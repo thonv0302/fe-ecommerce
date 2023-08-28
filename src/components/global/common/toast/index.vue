@@ -1,30 +1,51 @@
 <script setup lang="ts">
+import {
+  XMarkIcon,
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+  XCircleIcon,
+  InformationCircleIcon,
+} from '@heroicons/vue/24/solid';
+import { ToastType } from './ToastsEnum';
 import { useToast } from './index.ts';
-const { toasts } = useToast();
+const { toasts, dismiss } = useToast();
+
+const bgColor = {
+  [ToastType.Success]: 'bg-green-500',
+  [ToastType.Error]: 'bg-red-500',
+  [ToastType.Warning]: 'bg-yellow-500',
+  [ToastType.Info]: 'bg-blue-500',
+};
+
+const iconType = {
+  [ToastType.Success]: CheckCircleIcon,
+  [ToastType.Error]: XCircleIcon,
+  [ToastType.Warning]: ExclamationCircleIcon,
+  [ToastType.Info]: InformationCircleIcon,
+};
 </script>
 <template>
-  <div
-    class="fixed bottom-0 z-10 w-full p-2 right-2 sm:p-0 sm:w-auto sm:bottom-5"
-  >
+  <div class="fixed top-2 z-50 min-w-[300px] max-w-lg right-2">
     <TransitionGroup name="list" tag="ul">
-      <div
-        v-for="toast in toasts"
-        :key="toast.id"
-        class="mb-4 border-t-[1px] shadow-sm !pr-0 bg-red-400"
-        :class="`border-t-${toast.type}`"
-      >
-        <div class="flex justify-between sm:w-96 px-4">
-          <div class="flex items-center">
-            <div>
-              <div class="font-bold" v-if="toast.title">{{ toast.title }}</div>
-              <div class="">{{ toast.message }}</div>
-            </div>
+      <div v-for="(toast, index) in toasts" :key="toast.id">
+        <div
+          :class="[
+            'flex w-full items-center rounded-xl p-3 text-white',
+            {
+              'mt-2': index > 0,
+            },
+            bgColor[toast.type || ToastType.Success],
+          ]"
+        >
+          <component
+            :is="iconType[toast.type || ToastType.Success]"
+            class="w-6 h-6 me-2"
+          />
+          <div class="flex-1">
+            <div class="" v-if="toast.message">{{ toast.message }}</div>
           </div>
-          <button
-            v-if="toast.dismissible"
-            class="p-0.5 px-1.5 transition rounded hover:bg-white absolute top-2 right-2"
-          >
-            x
+          <button class="p-1" @click="dismiss(toast.id)">
+            <XMarkIcon class="w-6 h-6" />
           </button>
         </div>
       </div>

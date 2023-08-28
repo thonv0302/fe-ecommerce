@@ -1,36 +1,18 @@
 import { ref } from 'vue';
 import { nanoid } from 'nanoid';
-
-enum ToastType {
-  Success = 'success',
-  Error = 'error',
-  Info = 'info',
-  Warning = 'warning',
-}
-
-interface ToastOptions {
-  type?: ToastType;
-  title?: string;
-  dismissible?: boolean;
-  timeout?: number;
-}
-interface Toast extends ToastOptions {
-  message: string;
-  id: string;
-}
+import { ToastType, ToastOptions, Toast } from './ToastsEnum';
 
 const toasts = ref<Toast[]>([]);
 export const useToast = () => {
-
   const toast = (message: string, options?: ToastOptions) => {
     const id = nanoid();
     const defaults: Partial<Toast> = {
       type: ToastType.Success,
       dismissible: true,
-      timeout: 3000,
+      timeout: 2000,
     };
 
-    toasts.value.push({ id, ...defaults, message, ...options });
+    toasts.value.unshift({ id, ...defaults, message, ...options });
     let timeout =
       options?.timeout === undefined ? defaults.timeout : options.timeout;
     if (timeout) {
@@ -65,5 +47,6 @@ export const useToast = () => {
     error,
     info,
     warning,
+    dismiss,
   };
 };

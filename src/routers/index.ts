@@ -1,5 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { ROUTE_HOME, ROUTE_AUTH, ROUTE_ADMIN } from '../constants/routers';
+import {
+  ROUTE_HOME,
+  ROUTE_AUTH,
+  ROUTE_ADMIN,
+  ROUTE_ERROR,
+} from '../constants/routers';
 import { useAuthStore } from '../stores/authStore';
 import { storeToRefs } from 'pinia';
 
@@ -27,9 +32,21 @@ const routes = [
     alias: ROUTE_HOME.home.alias,
   },
   {
-    path: ROUTE_ADMIN.admin.path,
+    path: ROUTE_ADMIN.home.path,
     component: () => import('../views/admin/index.vue'),
-    name: ROUTE_ADMIN.admin.name,
+    name: ROUTE_ADMIN.home.name,
+    meta: ROUTE_ADMIN.home.meta,
+  },
+  {
+    path: ROUTE_ADMIN.document.path,
+    component: () => import('../views/admin/Document.vue'),
+    name: ROUTE_ADMIN.document.name,
+    meta: ROUTE_ADMIN.document.meta,
+  },
+  {
+    path: ROUTE_ERROR.notFound.path,
+    component: () => import('../views/error/NotFound.vue'),
+    name: ROUTE_ERROR.notFound.name,
   },
 ];
 
@@ -38,7 +55,7 @@ export const router = createRouter({
   routes,
 });
 
-const NOT_ALLOWED_ROUTE_PREFIXES = [ROUTE_ADMIN.admin.name];
+const NOT_ALLOWED_ROUTE_PREFIXES = [ROUTE_ADMIN.home.name];
 
 router.beforeResolve(async (to, from, next) => {
   const { isAuthenticated } = storeToRefs(useAuthStore());

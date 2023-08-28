@@ -1,6 +1,6 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { authApi } from '../axios/instances/authApi';
-import { handleAuthApi } from '../axios/instances/handleAuth'
+import { handleAuthApi } from '../axios/instances/handleAuth';
 import { computed, ref } from 'vue';
 import { useLocalStorage } from '@vueuse/core';
 import { useCookies } from '@vueuse/integrations/useCookies';
@@ -38,7 +38,7 @@ export const useAuthStore = defineStore('useAuth', () => {
   const refreshToken = async () => {
     try {
       const metadata = await handleAuthApi.refreshToken({
-        refreshTokenValue: refreshTokenValue.value
+        refreshTokenValue: refreshTokenValue.value,
       });
       shopInfo.value = metadata.shop;
       setCookies(metadata.tokens);
@@ -57,6 +57,19 @@ export const useAuthStore = defineStore('useAuth', () => {
     });
   };
 
+  const logout = async () => {
+    try {
+      await handleAuthApi.logout();
+      cookies.remove('authCookies', {
+        sameSite: true,
+      });
+      shopInfo.value = {};
+    } catch (error) {
+      throw error;
+    } finally {
+    }
+  };
+
   return {
     token,
     accessToken,
@@ -67,6 +80,7 @@ export const useAuthStore = defineStore('useAuth', () => {
     register,
     refreshToken,
     refreshTokenValue,
+    logout,
   };
 });
 

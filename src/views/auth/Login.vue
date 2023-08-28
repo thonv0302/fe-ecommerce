@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { ArrowSmallLeftIcon } from '@heroicons/vue/24/solid';
 import { ILoginInput } from '@/models/auth';
-import { ROUTE_HOME, ROUTE_ADMIN, ROUTE_AUTH } from '../../constants/routers';
-
-import { useAuthStore } from '../../stores/authStore';
+import { ROUTE_HOME, ROUTE_ADMIN, ROUTE_AUTH } from '@/constants/routers';
+import { useAuthStore } from '@/stores/authStore';
+import { useToast } from '@/components/global/common/toast';
+import Spinner from '@/components/global/icons/Spinner.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const toast = useToast();
 const { rememberMe } = storeToRefs(authStore);
+const isLoading = ref(false);
 
 const loginInfo = reactive<ILoginInput>({
   email: 'nguyenvietthoit1@gmail.com',
@@ -18,13 +21,19 @@ const loginInfo = reactive<ILoginInput>({
 });
 
 const onLogin = async () => {
-  await authStore.login(loginInfo);
-  router.push({
-    name: ROUTE_ADMIN.admin.name,
-  });
+  try {
+    isLoading.value = true;
+    await authStore.login(loginInfo);
+    toast.success('Login successfully.');
+    router.push({
+      name: ROUTE_ADMIN.home.name,
+    });
+  } catch (error) {
+    toast.error('Login fail.');
+  } finally {
+    isLoading.value = false;
+  }
 };
-
-console.log('import.meta.env: ', import.meta.env);
 </script>
 
 <template>
@@ -113,8 +122,17 @@ console.log('import.meta.env: ', import.meta.env);
       <div>
         <button
           type="submit"
-          class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          :class="[
+            'w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white',
+            {
+              'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500':
+                !isLoading,
+              'bg-indigo-300': isLoading,
+            },
+          ]"
+          :disabled="isLoading"
         >
+          <Spinner v-if="isLoading" />
           Sign in
         </button>
       </div>
@@ -200,7 +218,6 @@ console.log('import.meta.env: ', import.meta.env);
       </a>
     </div>
   </div>
-  <pre>{{}}</pre>
 </template>
 
 <style scoped></style>
