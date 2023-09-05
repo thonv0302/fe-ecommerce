@@ -4,6 +4,7 @@ import {
   ROUTE_AUTH,
   ROUTE_ADMIN,
   ROUTE_ERROR,
+  ROUTE_PRODUCT,
 } from '../constants/routers';
 import { useAuthStore } from '../stores/authStore';
 import { storeToRefs } from 'pinia';
@@ -34,8 +35,19 @@ const routes = [
   {
     path: ROUTE_ADMIN.home.path,
     component: () => import('../views/admin/index.vue'),
-    name: ROUTE_ADMIN.home.name,
+    children: [
+      {
+        path: '',
+        name: ROUTE_ADMIN.home.name,
+        component: () => import('../views/admin/home/index.vue'),
+      },
+    ],
     meta: ROUTE_ADMIN.home.meta,
+  },
+  {
+    path: ROUTE_PRODUCT.list.path,
+    component: () => import('../views/admin/product/list.vue'),
+    name: ROUTE_PRODUCT.list.name,
   },
   {
     path: ROUTE_ADMIN.document.path,

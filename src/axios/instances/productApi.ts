@@ -10,11 +10,45 @@ export default class ProductApi extends AxiosBase {
     super(interceptors, baseURL);
   }
 
+  public async getAllProductShop() {
+    let metadata = [];
+    try {
+      const { status, data } = await this.axiosInstance.get<any>(
+        this.prefixURL + 'shop/all'
+      );
+
+      if (data && data.metadata && status === StatusCode.OK) {
+        metadata = data.metadata;
+      }
+    } catch (error) {
+      metadata = [];
+    }
+
+    return metadata;
+  }
+
   public async getAllProductPublish() {
     let metadata = [];
     try {
       const { status, data } = await this.axiosInstance.get<any>(
         this.prefixURL + 'published/all'
+      );
+
+      if (data && data.metadata && status === StatusCode.OK) {
+        metadata = data.metadata;
+      }
+    } catch (error) {
+      metadata = [];
+    }
+
+    return metadata;
+  }
+
+  public async getAllProductDraft() {
+    let metadata = [];
+    try {
+      const { status, data } = await this.axiosInstance.get<any>(
+        this.prefixURL + 'drafts/all'
       );
 
       if (data && data.metadata && status === StatusCode.OK) {

@@ -1,8 +1,8 @@
 <template>
   <component :is="layoutChosen">
-    <RouterView v-slot="{ Component, route }" :key="$route.fullPath">
+    <RouterView v-slot="{ Component }">
       <Transition name="fade" mode="in-out">
-        <Component :is="Component" :key="route.path" />
+        <Component :is="Component" />
       </Transition>
     </RouterView>
   </component>

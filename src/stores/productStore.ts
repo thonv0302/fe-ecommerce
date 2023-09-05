@@ -1,5 +1,4 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
-import { computed } from 'vue';
 import { productApi } from '../axios/instances/productApi';
 
 export const useProductStore = defineStore('productStore', () => {
@@ -7,8 +6,18 @@ export const useProductStore = defineStore('productStore', () => {
     return await productApi.getAllProductPublish();
   };
 
+  const getAllProductDraft = async () => {
+    return await productApi.getAllProductDraft();
+  };
+
+  const getAllProductShop = async () => {
+    return await productApi.getAllProductShop();
+  };
+
   return {
     getAllProductPublish,
+    getAllProductDraft,
+    getAllProductShop,
   };
 });
 

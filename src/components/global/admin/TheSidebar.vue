@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-import { XMarkIcon, HomeIcon } from '@heroicons/vue/24/solid';
-import { ROUTE_HOME, ROUTE_ADMIN } from '@/constants/routers';
+import {
+  XMarkIcon,
+  HomeIcon,
+  TagIcon,
+  DocumentDuplicateIcon,
+} from '@heroicons/vue/24/solid';
+import { ROUTE_HOME, ROUTE_ADMIN, ROUTE_PRODUCT } from '@/constants/routers';
 import { useLocalStorage } from '@vueuse/core';
 
 const route = useRoute();
@@ -15,9 +20,14 @@ const navigation = [
     icon: HomeIcon,
   },
   {
+    name: ROUTE_PRODUCT.list.name,
+    href: ROUTE_PRODUCT.list.path,
+    icon: TagIcon,
+  },
+  {
     name: ROUTE_ADMIN.document.name,
     href: ROUTE_ADMIN.document.path,
-    icon: HomeIcon,
+    icon: DocumentDuplicateIcon,
   },
 ];
 </script>
@@ -68,7 +78,7 @@ const navigation = [
             },
           ]"
         >
-          <component class="w-5 h-5 mr-2 text-indigo-600" :is="item.icon" />
+          <component class="w-5 h-5 mr-2 text-indigo-500" :is="item.icon" />
           {{ item.name }}
         </RouterLink>
       </nav>

@@ -8,7 +8,13 @@ import TheSidebar from '@/components/global/admin/TheSidebar.vue';
     <div class="lg:pl-64 flex flex-col flex-1">
       <main class="flex-1">
         <TheHeader />
-        <slot />
+        <main class="flex-1">
+          <div class="py-6">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+              <slot />
+            </div>
+          </div>
+        </main>
       </main>
     </div>
   </div>
