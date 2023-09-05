@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ArrowSmallLeftIcon } from '@heroicons/vue/24/solid';
 import { IRegisterInput } from '@/models/auth';
@@ -35,6 +35,10 @@ const onRegister = async () => {
     isLoading.value = false;
   }
 };
+
+onMounted(() => {
+  authStore.removeCookies();
+});
 </script>
 <template>
   <h2 class="text-2xl font-extrabold text-gray-900 flex items-center">

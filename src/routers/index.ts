@@ -67,15 +67,12 @@ export const router = createRouter({
   routes,
 });
 
-const NOT_ALLOWED_ROUTE_PREFIXES = [ROUTE_ADMIN.home.name];
+const NOT_ALLOWED_ROUTE_PREFIXES = [ROUTE_ADMIN.home.name, ROUTE_PRODUCT.list];
 
 router.beforeResolve(async (to, from, next) => {
   const { isAuthenticated } = storeToRefs(useAuthStore());
-  const toRouteName = to.name as string;
-  if (
-    !isAuthenticated.value &&
-    NOT_ALLOWED_ROUTE_PREFIXES.includes(toRouteName)
-  ) {
+  const toRouteName = to.path as string;
+  if (!isAuthenticated.value && toRouteName.includes('admin')) {
     next({
       name: ROUTE_AUTH.login.name,
     });

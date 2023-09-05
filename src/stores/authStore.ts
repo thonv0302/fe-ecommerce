@@ -12,10 +12,12 @@ export const useAuthStore = defineStore('useAuth', () => {
   const rememberMe = ref(false);
   const token = computed(() => cookies.get('authCookies'));
   const isAuthenticated = computed(() => !!token.value);
-  const accessToken = computed(() => token.value.accessToken);
-  const refreshTokenValue = computed(() => token.value.refreshToken);
+  const accessToken = computed(() => token.value?.accessToken);
+  const refreshTokenValue = computed(() => token.value?.refreshToken);
 
   const login = async (data: ILoginInput) => {
+    removeCookies();
+
     try {
       const metadata = await authApi.login(data);
       shopInfo.value = metadata.shop;
@@ -26,6 +28,8 @@ export const useAuthStore = defineStore('useAuth', () => {
   };
 
   const register = async (data: IRegisterInput) => {
+    removeCookies();
+
     try {
       const metadata = await authApi.register(data);
       shopInfo.value = metadata.shop;
@@ -47,6 +51,17 @@ export const useAuthStore = defineStore('useAuth', () => {
     }
   };
 
+  const logout = async () => {
+    try {
+      await handleAuthApi.logout();
+      removeCookies();
+      shopInfo.value = {};
+    } catch (error) {
+      throw error;
+    } finally {
+    }
+  };
+
   const setCookies = (metadata: ITokenResponse) => {
     let maxAge = 86400; // 1 day
     if (rememberMe.value) {
@@ -54,20 +69,12 @@ export const useAuthStore = defineStore('useAuth', () => {
     }
     cookies.set('authCookies', metadata, {
       maxAge,
+      path: '/',
     });
   };
 
-  const logout = async () => {
-    try {
-      await handleAuthApi.logout();
-      cookies.remove('authCookies', {
-        sameSite: true,
-      });
-      shopInfo.value = {};
-    } catch (error) {
-      throw error;
-    } finally {
-    }
+  const removeCookies = () => {
+    cookies.remove('authCookies');
   };
 
   return {
@@ -81,6 +88,7 @@ export const useAuthStore = defineStore('useAuth', () => {
     refreshToken,
     refreshTokenValue,
     logout,
+    removeCookies,
   };
 });
 

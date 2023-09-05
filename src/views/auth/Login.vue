@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { ArrowSmallLeftIcon } from '@heroicons/vue/24/solid';
@@ -34,6 +34,10 @@ const onLogin = async () => {
     isLoading.value = false;
   }
 };
+
+onMounted(() => {
+  authStore.removeCookies();
+});
 </script>
 
 <template>

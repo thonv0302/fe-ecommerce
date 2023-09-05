@@ -13,8 +13,6 @@ export default async function setup(
       const originalConfig = err.config;
       const authStore = useAuthStore();
 
-      console.log('vao day');
-
       if (
         err.response.status === StatusCode.UNAUTHORIZED &&
         !originalConfig._retry
