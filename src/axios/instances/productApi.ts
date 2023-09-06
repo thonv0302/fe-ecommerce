@@ -10,12 +10,16 @@ export default class ProductApi extends AxiosBase {
     super(interceptors, baseURL);
   }
 
-  public async getAllProductShop() {
+  public async getAllProductShop(route: any) {
     let metadata = [];
-
+    
     try {
       const { status, data } = await this.axiosInstance.get<any>(
-        this.prefixURL + 'shop/all'
+        this.prefixURL + 'shop/all', {
+        params: {
+          pageNumber: +route.query.pageNumber, pageSize: +route.query.pageSize
+        }
+      }
       );
 
       if (data && data.metadata && status === StatusCode.OK) {
@@ -28,7 +32,7 @@ export default class ProductApi extends AxiosBase {
     return metadata;
   }
 
-  public async getAllProductPublish() {
+  public async getAllProductPublish(route: any) {
     let metadata = [];
     try {
       const { status, data } = await this.axiosInstance.get<any>(
@@ -45,7 +49,7 @@ export default class ProductApi extends AxiosBase {
     return metadata;
   }
 
-  public async getAllProductDraft() {
+  public async getAllProductDraft(route: any) {
     let metadata = [];
     try {
       const { status, data } = await this.axiosInstance.get<any>(
