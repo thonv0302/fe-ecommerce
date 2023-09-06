@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, onBeforeMount, onMounted, ref } from 'vue';
 import { useRouter, useRoute, onBeforeRouteUpdate } from 'vue-router';
-import { PlusSmallIcon, PencilSquareIcon } from '@heroicons/vue/24/solid';
+import { PlusSmallIcon, PencilSquareIcon, ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/24/solid';
 import { useProductStore } from '@/stores/productStore';
 import { useTimeAgo } from '@vueuse/core';
 import { useItemSelection } from '@/composables/useItemSelection';
@@ -52,6 +52,8 @@ onBeforeMount(() => {
   }
 });
 
+
+
 type Status = 'all' | 'draft' | 'publish';
 onMounted(() => {
   getProductByStatus(route.query.status as Status);
@@ -89,6 +91,17 @@ const bulkSelect = () => {
     itemsSelection.addMultiple(products.value);
   }
 };
+
+const setStatusRoute = (query: any) => {
+  router.push({
+    query: query
+  })
+}
+
+const sortBy = () => {
+  console.log('asdfasfd');
+
+}
 </script>
 
 <template>
@@ -97,32 +110,22 @@ const bulkSelect = () => {
       <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
         <div class="mb-2 flex justify-between items-center">
           <h1 class="text-base text-gray-500">Products</h1>
-          <button
-            type="button"
-            class="px-4 py-2 text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 flex justify-between items-center"
-          >
+          <button type="button"
+            class="px-4 py-2 text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 flex justify-between items-center">
             <PlusSmallIcon class="w-4 h-4" />
             <span class="ms-1"> Add product </span>
           </button>
         </div>
         <div class="overflow-hidden border sm:rounded-lg">
           <div class="border-b text-sm px-3 text-gray-500 py-2">
-            <button
-              v-for="(status, index) in statusTab"
-              :key="index"
-              :class="[
-                'px-2 py-1 min-w-[50px] ',
-                {
-                  'rounded-md bg-slate-100':
-                    status.query.status === route.query.status,
-                },
-              ]"
-              @click="
-                router.push({
-                  query: status.query,
-                })
-              "
-            >
+            <button v-for="(status, index) in statusTab" :key="index" :class="[
+              'px-2 py-1 min-w-[50px] ',
+              {
+                'rounded-md bg-slate-100':
+                  status.query.status === route.query.status,
+              },
+            ]" @click="setStatusRoute(status.query)">
+
               {{ status.title }}
             </button>
           </div>
@@ -130,70 +133,81 @@ const bulkSelect = () => {
             <thead class="bg-gray-50">
               <tr>
                 <th scope="col" class="p-3 whitespace-nowrap w-8">
-                  <input
-                    ref="checkbox"
-                    type="checkbox"
-                    :checked="allAreSelected"
-                    :indeterminate="partialSelection"
+                  <input ref="checkbox" type="checkbox" :checked="allAreSelected" :indeterminate="partialSelection"
                     class="h-4 w-4 text-indigo-600 border-gray-300 rounded indeterminate:bg-indigo-600"
-                    @click="bulkSelect"
-                  />
+                    @click="bulkSelect" />
                 </th>
-                <th
-                  scope="col"
-                  :class="[
-                    'p-3 text-left text-sm font-medium text-gray-500 tracking-wider',
-                  ]"
-                >
-                  {{
-                    itemsSelection.items.size
-                      ? `${itemsSelection.items.size} selected`
-                      : 'Title'
-                  }}
+                <th scope="col" :class="[
+                  'p-3 text-left text-sm font-medium text-gray-500 tracking-wider',
+                ]">
+                  <span v-if="itemsSelection.items.size">{{ `${itemsSelection.items.size} selected` }}</span>
+                  <div v-else class="flex items-center" @click="">
+                    <span>
+                      Title
+                    </span>
+
+                    <button @click="">
+                      <ChevronUpIcon class="w-4 h-2" />
+                      <ChevronDownIcon class="w-4 h-2" />
+                    </button>
+                  </div>
                 </th>
-                <th
-                  scope="col"
-                  :class="[
-                    'p-3 text-left text-sm font-medium text-gray-500 tracking-wider',
-                    {
-                      invisible: itemsSelection.items.size > 0,
-                    },
-                  ]"
-                >
+                <th scope="col" :class="[
+                  'p-3 text-left text-sm font-medium text-gray-500 tracking-wider',
+                  {
+                    invisible: itemsSelection.items.size > 0,
+                  },
+                ]">
                   Status
                 </th>
-                <th
-                  scope="col"
-                  :class="[
-                    'p-3 text-left text-sm font-medium text-gray-500 tracking-wider',
-                    {
-                      invisible: itemsSelection.items.size > 0,
-                    },
-                  ]"
-                >
-                  Inventory
+                <th scope="col" :class="[
+                  'p-3 text-left text-sm font-medium text-gray-500 tracking-wider ',
+                  {
+                    invisible: itemsSelection.items.size > 0,
+                  },
+                ]">
+                  <div class="flex items-center">
+                    <span>
+                      Inventory
+                    </span>
+
+                    <div>
+                      <ChevronUpIcon class="w-4 h-2" />
+                      <ChevronDownIcon class="w-4 h-2" />
+                    </div>
+                  </div>
                 </th>
-                <th
-                  scope="col"
-                  :class="[
-                    'p-3 text-left text-sm font-medium text-gray-500 tracking-wider',
-                    {
-                      invisible: itemsSelection.items.size > 0,
-                    },
-                  ]"
-                >
-                  Price
+                <th scope="col" :class="[
+                  'p-3 text-left text-sm font-medium text-gray-500 tracking-wider',
+                  {
+                    invisible: itemsSelection.items.size > 0,
+                  },
+                ]">
+                  <div class="flex items-center">
+                    <span>
+                      Price
+                    </span>
+                    <button>
+                      <ChevronUpIcon class="w-4 h-2" />
+                      <ChevronDownIcon class="w-4 h-2" />
+                    </button>
+                  </div>
                 </th>
-                <th
-                  scope="col"
-                  :class="[
-                    'p-3 text-left text-sm font-medium text-gray-500 tracking-wider',
-                    {
-                      invisible: itemsSelection.items.size > 0,
-                    },
-                  ]"
-                >
-                  Date
+                <th scope="col" :class="[
+                  'p-3 text-left text-sm font-medium text-gray-500 tracking-wider',
+                  {
+                    invisible: itemsSelection.items.size > 0,
+                  },
+                ]">
+                  <div class="flex items-center">
+                    <span>
+                      Date
+                    </span>
+                    <button>
+                      <ChevronUpIcon class="w-4 h-2" />
+                      <ChevronDownIcon class="w-4 h-2" />
+                    </button>
+                  </div>
                 </th>
                 <th scope="col" class="relative px-4 py-3">
                   <span class="sr-only">Edit</span>
@@ -201,19 +215,17 @@ const bulkSelect = () => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="product in products" :key="product._id">
+              <tr v-for="product in products" :key="product._id" class="cursor-pointer">
                 <td class="px-3 py-4 whitespace-nowrap w-8">
-                  <input
-                    type="checkbox"
-                    :checked="itemsSelection.items.has(product)"
+                  <input type="checkbox" :checked="itemsSelection.items.has(product)"
                     @click="itemsSelection.toggle(product)"
-                    class="h-4 w-4 text-indigo-600 border-gray-300 rounded me-1 indeterminate:bg-indigo-600"
-                  />
+                    class="h-4 w-4 text-indigo-600 border-gray-300 rounded me-1 indeterminate:bg-indigo-600" />
                 </td>
-                <td
-                  class="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
-                >
-                  {{ product.product_name }}
+                <td class="px-3 py-4 whitespace-nowrap  flex items-center">
+                  <img class="w-8 h-8 me-2 rounded" :src="product.product_thumb" alt="">
+                  <span class="text-sm font-medium text-gray-500">
+                    {{ product.product_name }}
+                  </span>
                 </td>
                 <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
                   {{ product.isPublished ? 'Publish' : 'Draft' }}
@@ -227,15 +239,10 @@ const bulkSelect = () => {
                 <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
                   {{ useTimeAgo(product.createdAt) }}
                 </td>
-                <td
-                  class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium"
-                >
-                  <a
-                    href="#"
-                    class="text-indigo-600 hover:text-indigo-900 flex"
-                  >
+                <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <RouterLink to="/" class="text-indigo-600 hover:text-indigo-900 flex">
                     <PencilSquareIcon class="w-4 h-4" />
-                  </a>
+                  </RouterLink>
                 </td>
               </tr>
             </tbody>
