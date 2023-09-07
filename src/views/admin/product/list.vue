@@ -5,6 +5,7 @@ import { PlusSmallIcon, PencilSquareIcon, ChevronUpIcon, ChevronDownIcon } from 
 import { useProductStore } from '@/stores/productStore';
 import { useTimeAgo } from '@vueuse/core';
 import { useItemSelection } from '@/composables/useItemSelection';
+import Pagination from '@/components/global/common/pagination/index.vue'
 
 const productStore = useProductStore();
 
@@ -250,6 +251,7 @@ const sortBy = () => {
         </div>
       </div>
     </div>
+    <Pagination :totalRecords="30"/>
   </div>
 </template>
 
