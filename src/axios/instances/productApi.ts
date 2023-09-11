@@ -12,11 +12,12 @@ export default class ProductApi extends AxiosBase {
 
   public async getAllProductShop({
     page,
+    sortTitle,
     sortInventory,
     sortPrice,
     sortDate,
     search,
-    limit
+    size,
   }: any) {
     let metadata = [];
 
@@ -26,12 +27,13 @@ export default class ProductApi extends AxiosBase {
         {
           params: {
             page,
+            sortTitle,
             sortInventory,
             sortPrice,
             sortDate,
             search,
-            limit
-          }
+            size,
+          },
         }
       );
 
@@ -47,25 +49,28 @@ export default class ProductApi extends AxiosBase {
 
   public async getAllProductPublish({
     page,
+    sortTitle,
     sortInventory,
     sortPrice,
     sortDate,
     search,
-    limit
+    size,
   }: any) {
     let metadata = [];
     try {
       const { status, data } = await this.axiosInstance.get<any>(
-        this.prefixURL + 'published/all', {
-        params: {
-          page,
-          sortInventory,
-          sortPrice,
-          sortDate,
-          search,
-          limit
+        this.prefixURL + 'published/all',
+        {
+          params: {
+            page,
+            sortTitle,
+            sortInventory,
+            sortPrice,
+            sortDate,
+            search,
+            size,
+          },
         }
-      }
       );
 
       if (data && data.metadata && status === StatusCode.OK) {
@@ -80,11 +85,12 @@ export default class ProductApi extends AxiosBase {
 
   public async getAllProductDraft({
     page,
+    sortTitle,
     sortInventory,
     sortPrice,
     sortDate,
     search,
-    limit
+    size,
   }: any) {
     let metadata = [];
     try {
@@ -93,12 +99,13 @@ export default class ProductApi extends AxiosBase {
         {
           params: {
             page,
+            sortTitle,
             sortInventory,
             sortPrice,
             sortDate,
             search,
-            limit
-          }
+            size,
+          },
         }
       );
 

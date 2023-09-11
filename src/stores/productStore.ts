@@ -4,57 +4,61 @@ import { productApi } from '../axios/instances/productApi';
 export const useProductStore = defineStore('productStore', () => {
   const getAllProductPublish = async ({
     page,
+    sortTitle,
     sortInventory,
     sortPrice,
     sortDate,
     search,
-    limit
+    size,
   }: any) => {
     return await productApi.getAllProductPublish({
       page,
+      sortTitle,
       sortInventory,
       sortPrice,
       sortDate,
       search,
-      limit
+      size,
     });
   };
 
   const getAllProductDraft = async ({
     page,
+    sortTitle,
     sortInventory,
     sortPrice,
     sortDate,
     search,
-    limit
+    size,
   }: any) => {
-
     return await productApi.getAllProductDraft({
       page,
+      sortTitle,
       sortInventory,
       sortPrice,
       sortDate,
       search,
-      limit
+      size,
     });
   };
 
   const getAllProductShop = async ({
     page,
+    sortTitle,
     sortInventory,
     sortPrice,
     sortDate,
     search,
-    limit
+    size,
   }: any) => {
-
     return await productApi.getAllProductShop({
       page,
+      sortTitle,
       sortInventory,
       sortPrice,
       sortDate,
       search,
-      limit
+      size,
     });
   };
 
