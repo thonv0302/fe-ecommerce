@@ -1,14 +1,17 @@
 <script lang="ts" setup>
-import { computed, onBeforeMount, onMounted, ref } from 'vue';
+import { computed, onBeforeMount, onMounted, onUpdated, ref, watch } from 'vue';
 import { useRouter, useRoute, onBeforeRouteUpdate } from 'vue-router';
 import {
   PlusSmallIcon,
   PencilSquareIcon,
   ChevronUpIcon,
   ChevronDownIcon,
+  MagnifyingGlassIcon,
+  ArrowsUpDownIcon,
+  XMarkIcon,
 } from '@heroicons/vue/24/solid';
 import { useProductStore } from '@/stores/productStore';
-import { useTimeAgo } from '@vueuse/core';
+import { useTimeAgo, watchDebounced, onClickOutside } from '@vueuse/core';
 import { useItemSelection } from '@/composables/useItemSelection';
 import Pagination from '@/components/global/common/pagination/index.vue';
 
@@ -42,8 +45,15 @@ const statusTab = [
 const checkbox = ref();
 const products = ref([]);
 
-//-- route query params
 onBeforeMount(() => {
+  sortConditions.value.forEach((condition) => {
+    if (route.query[condition.queryKey]) {
+      selectCondition.value = condition;
+      return;
+    } else {
+      selectCondition.value = sortConditions.value[0];
+    }
+  });
   if (
     !statusTab
       .map((status) => status.query.status)
@@ -63,8 +73,8 @@ onMounted(() => {
   getProductByStatus(route.query.status as Status);
 });
 
-onBeforeRouteUpdate((to) => {
-  getProductByStatus(to.query.status as Status);
+onBeforeRouteUpdate(async (to) => {
+  await getProductByStatus(to.query.status as Status);
 });
 
 const getProductByStatus = async (status: Status) => {
@@ -74,7 +84,10 @@ const getProductByStatus = async (status: Status) => {
     publish: productStore.getAllProductPublish,
     draft: productStore.getAllProductDraft,
   };
-  products.value = await obj[`${status}`]();
+
+  setTimeout(async () => {
+    products.value = await obj[`${status}`](route.query);
+  }, 0);
 };
 
 const allAreSelected = computed(() => {
@@ -98,13 +111,129 @@ const bulkSelect = () => {
 
 const setStatusRoute = (query: any) => {
   router.push({
-    query: query,
+    query: {
+      ...route.query,
+      ...query,
+    },
   });
 };
 
-const sortBy = () => {
-  console.log('asdfasfd');
+const sortBy = (queryName: string) => {
+  // if (!route.query[queryName] || route.query[queryName] === '-1') {
+  //   querySortValue = '1';
+  // }
+
+  const queryObj: any = {};
+
+  if (route.query.status) {
+    queryObj['status'] = route.query.status;
+  }
+
+  if (route.query.page) {
+    queryObj['page'] = route.query.page;
+  }
+
+  if (route.query.search) {
+    queryObj['search'] = route.query.search;
+  }
+
+  router.push({
+    query: {
+      ...queryObj,
+      [queryName]: selectCondition.value.sort,
+    },
+  });
 };
+
+const activeSort = (queryName: string) => {
+  return route.query[queryName] || '-1';
+};
+
+const openSearchInput = ref(false);
+const searchValue = ref('');
+
+watchDebounced(
+  searchValue,
+  (newVal) => {
+    if (openSearchInput.value) {
+      router.push({
+        query: {
+          ...route.query,
+          search: newVal,
+        },
+      });
+    } else {
+      delete route.query.search;
+      debugger;
+      router.push({
+        query: {
+          ...route.query,
+        },
+      });
+    }
+  },
+  { debounce: 500 }
+);
+
+const inputSearch = ref();
+
+const openSearchInputBox = () => {
+  searchValue.value = '';
+  openSearchInput.value = !openSearchInput.value;
+  if (openSearchInput.value) {
+    setTimeout(() => {
+      inputSearch.value.focus();
+    }, 0);
+  }
+};
+
+const sortConditions = ref([
+  {
+    id: 1,
+    name: 'Title',
+    queryKey: 'sortTile',
+    asc: 'A - Z',
+    desc: 'Z - A',
+    sort: '1',
+  },
+  {
+    id: 2,
+    name: 'Inventory',
+    queryKey: 'sortInventory',
+    asc: 'Low to high',
+    desc: 'High to low',
+    sort: '1',
+  },
+  {
+    id: 3,
+    name: 'Price',
+    queryKey: 'sortPrice',
+    asc: 'Low to high',
+    desc: 'High to low',
+    sort: '1',
+  },
+  {
+    id: 4,
+    name: 'Created date',
+    queryKey: 'sortDate',
+    asc: 'Old to new',
+    desc: 'New to old',
+    sort: '1',
+  },
+]);
+
+const showDropdown = ref(false);
+const target = ref();
+onClickOutside(target, () => {
+  showDropdown.value = false;
+});
+
+const selectCondition = ref({
+  asc: '',
+  desc: '',
+  sort: '',
+  queryKey: '',
+});
 </script>
 
 <template>
@@ -122,21 +251,145 @@ const sortBy = () => {
           </button>
         </div>
         <div class="overflow-hidden border sm:rounded-lg">
-          <div class="border-b text-sm px-3 text-gray-500 py-2">
-            <button
-              v-for="(status, index) in statusTab"
-              :key="index"
+          <div class="border-b text-sm text-gray-500 transition">
+            <div
               :class="[
-                'px-2 py-1 min-w-[50px] ',
+                'flex justify-between transition duration-150 ease-out',
                 {
-                  'rounded-md bg-slate-100':
-                    status.query.status === route.query.status,
+                  'flex-col items-start': openSearchInput,
+                  'items-center': !openSearchInput,
                 },
               ]"
-              @click="setStatusRoute(status.query)"
             >
-              {{ status.title }}
-            </button>
+              <div :class="['px-3 py-2']" v-if="!openSearchInput">
+                <button
+                  v-for="(status, index) in statusTab"
+                  :key="index"
+                  :class="[
+                    'px-2 py-1 min-w-[50px] hover:bg-gray-50 mr-1 rounded-md',
+                    {
+                      ' bg-slate-100':
+                        status.query.status === route.query.status,
+                    },
+                  ]"
+                  @click="setStatusRoute(status.query)"
+                >
+                  {{ status.title }}
+                </button>
+              </div>
+
+              <div
+                :class="[
+                  'flex justify-between px-3 py-2 transition',
+                  {
+                    'w-full': openSearchInput,
+                  },
+                ]"
+              >
+                <Transition name="slide-fade">
+                  <div v-if="openSearchInput" class="flex-1">
+                    <input
+                      id="search"
+                      name="search"
+                      type="text"
+                      ref="inputSearch"
+                      v-model="searchValue"
+                      :class="[
+                        'block w-full px-2 py-0 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+                      ]"
+                    />
+                  </div>
+                </Transition>
+                <div>
+                  <button
+                    class="py-1 px-2 ml-3 hover:bg-gray-50 rounded-md"
+                    @click="openSearchInputBox"
+                  >
+                    <component
+                      :is="!openSearchInput ? MagnifyingGlassIcon : XMarkIcon"
+                      class="w-4 h-4"
+                    />
+                  </button>
+                  <div class="inline-block relative" ref="target">
+                    <button
+                      class="ml-1 py-1 px-2 hover:bg-gray-50 rounded-md h-[27px]"
+                      @click="showDropdown = !showDropdown"
+                    >
+                      <ArrowsUpDownIcon class="w-4 h-4" />
+                    </button>
+                    <Transition name="slide-fade">
+                      <div
+                        v-if="showDropdown"
+                        class="overflow-hidden absolute right-0 min-w-[140px] border rounded-lg shadow-lg bg-white"
+                      >
+                        <div class="px-3 pt-2">Sort by</div>
+                        <div class="px-3 py-2">
+                          <div
+                            v-for="(condition, idx) in sortConditions"
+                            :key="condition.id"
+                            :class="[
+                              'flex items-center',
+                              {
+                                'mb-3': idx !== sortConditions.length - 1,
+                              },
+                            ]"
+                          >
+                            <input
+                              type="radio"
+                              name="sort-condition"
+                              :id="`${condition.id}`"
+                              :value="condition"
+                              v-model="selectCondition"
+                              @click="sortBy(condition.queryKey)"
+                              class="h-4 w-4 text-indigo-600 border-gray-300"
+                            />
+                            <label
+                              :for="`${condition.id}`"
+                              class="ml-3 block text-sm font-medium text-gray-600 cursor-pointer"
+                            >
+                              {{ condition.name }}
+                            </label>
+                          </div>
+                        </div>
+                        <div
+                          class="h-[1px] w-full bg-slate-200 text-left"
+                        ></div>
+                        <div v-if="selectCondition.asc">
+                          <button
+                            :class="[
+                              'py-2 px-3 block text-left w-full',
+                              {
+                                'bg-slate-100': selectCondition.sort === '1',
+                              },
+                            ]"
+                            @click="
+                              selectCondition.sort = '1';
+                              sortBy(selectCondition.queryKey);
+                            "
+                          >
+                            {{ selectCondition.asc }}
+                          </button>
+                          <button
+                            :class="[
+                              'py-2 px-3 block text-left w-full',
+                              {
+                                'bg-slate-100': selectCondition.sort === '-1',
+                              },
+                            ]"
+                            @click="
+                              selectCondition.sort = '-1';
+                              sortBy(selectCondition.queryKey);
+                            "
+                          >
+                            {{ selectCondition.desc }}
+                          </button>
+                        </div>
+                      </div>
+                    </Transition>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
@@ -160,12 +413,28 @@ const sortBy = () => {
                   <span v-if="itemsSelection.items.size">{{
                     `${itemsSelection.items.size} selected`
                   }}</span>
-                  <div v-else class="flex items-center" @click="">
+                  <div v-else class="flex items-center">
                     <span> Title </span>
 
-                    <button @click="">
-                      <ChevronUpIcon class="w-4 h-2" />
-                      <ChevronDownIcon class="w-4 h-2" />
+                    <button @click="sortBy('sortTitle')">
+                      <ChevronUpIcon
+                        :class="[
+                          'w-4 h-2',
+                          {
+                            'text-gray-800': activeSort('sortTitle') === '1',
+                            'text-gray-400': activeSort('sortTitle') === '-1',
+                          },
+                        ]"
+                      />
+                      <ChevronDownIcon
+                        :class="[
+                          'w-4 h-2',
+                          {
+                            'text-gray-800': activeSort('sortTitle') === '-1',
+                            'text-gray-400': activeSort('sortTitle') === '1',
+                          },
+                        ]"
+                      />
                     </button>
                   </div>
                 </th>
@@ -191,11 +460,6 @@ const sortBy = () => {
                 >
                   <div class="flex items-center">
                     <span> Inventory </span>
-
-                    <div>
-                      <ChevronUpIcon class="w-4 h-2" />
-                      <ChevronDownIcon class="w-4 h-2" />
-                    </div>
                   </div>
                 </th>
                 <th
@@ -209,10 +473,6 @@ const sortBy = () => {
                 >
                   <div class="flex items-center">
                     <span> Price </span>
-                    <button>
-                      <ChevronUpIcon class="w-4 h-2" />
-                      <ChevronDownIcon class="w-4 h-2" />
-                    </button>
                   </div>
                 </th>
                 <th
@@ -226,10 +486,6 @@ const sortBy = () => {
                 >
                   <div class="flex items-center">
                     <span> Date </span>
-                    <button>
-                      <ChevronUpIcon class="w-4 h-2" />
-                      <ChevronDownIcon class="w-4 h-2" />
-                    </button>
                   </div>
                 </th>
                 <th scope="col" class="relative px-4 py-3">
@@ -289,7 +545,7 @@ const sortBy = () => {
         </div>
       </div>
     </div>
-    <Pagination :totalRecords="300" />
+    <Pagination :totalRecords="100" :pageRange="7" />
   </div>
 </template>
 

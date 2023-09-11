@@ -77,23 +77,28 @@ const onLogout = async () => {
               />
             </button>
           </div>
-          <div
-            v-if="showDropdown"
-            class="origin-top-right absolute right-0 mt-2 min-w-[120px] rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
-          >
-            <button
-              :class="[' bg-gray-100', 'block px-4 py-2 text-sm text-gray-700']"
+          <Transition name="slide-fade">
+            <div
+              v-if="showDropdown"
+              class="origin-top-right absolute right-0 mt-2 min-w-[120px] rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
             >
-              Your profile
-            </button>
-            <a
-              role="button"
-              @click="onLogout"
-              :class="['block px-4 py-2 text-sm text-gray-700']"
-            >
-              Sign out
-            </a>
-          </div>
+              <button
+                :class="[
+                  ' bg-gray-100',
+                  'block px-4 py-2 text-sm text-gray-700 w-full',
+                ]"
+              >
+                Your profile
+              </button>
+              <a
+                role="button"
+                @click="onLogout"
+                :class="['block px-4 py-2 text-sm text-gray-700 w-full']"
+              >
+                Sign out
+              </a>
+            </div>
+          </Transition>
         </div>
       </div>
     </div>
@@ -110,5 +115,19 @@ const onLogout = async () => {
   right: -5px;
   top: 0;
   margin-top: -4px;
+}
+
+.slide-fade-enter-active {
+  transition: all 0.2s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.4s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
 }
 </style>

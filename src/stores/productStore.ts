@@ -2,15 +2,21 @@ import { acceptHMRUpdate, defineStore } from 'pinia';
 import { productApi } from '../axios/instances/productApi';
 
 export const useProductStore = defineStore('productStore', () => {
-  const getAllProductPublish = async () => {
+  const getAllProductPublish = async (query) => {
+    console.log('query: ', query);
+
     return await productApi.getAllProductPublish();
   };
 
-  const getAllProductDraft = async () => {
+  const getAllProductDraft = async (query) => {
+    console.log('query: ', query);
+
     return await productApi.getAllProductDraft();
   };
 
-  const getAllProductShop = async () => {
+  const getAllProductShop = async (query) => {
+    console.log('query: ', query);
+
     return await productApi.getAllProductShop();
   };
 
