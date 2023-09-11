@@ -10,12 +10,29 @@ export default class ProductApi extends AxiosBase {
     super(interceptors, baseURL);
   }
 
-  public async getAllProductShop() {
+  public async getAllProductShop({
+    page,
+    sortInventory,
+    sortPrice,
+    sortDate,
+    search,
+    limit
+  }: any) {
     let metadata = [];
 
     try {
       const { status, data } = await this.axiosInstance.get<any>(
-        this.prefixURL + 'shop/all'
+        this.prefixURL + 'shop/all',
+        {
+          params: {
+            page,
+            sortInventory,
+            sortPrice,
+            sortDate,
+            search,
+            limit
+          }
+        }
       );
 
       if (data && data.metadata && status === StatusCode.OK) {
@@ -28,11 +45,27 @@ export default class ProductApi extends AxiosBase {
     return metadata;
   }
 
-  public async getAllProductPublish() {
+  public async getAllProductPublish({
+    page,
+    sortInventory,
+    sortPrice,
+    sortDate,
+    search,
+    limit
+  }: any) {
     let metadata = [];
     try {
       const { status, data } = await this.axiosInstance.get<any>(
-        this.prefixURL + 'published/all'
+        this.prefixURL + 'published/all', {
+        params: {
+          page,
+          sortInventory,
+          sortPrice,
+          sortDate,
+          search,
+          limit
+        }
+      }
       );
 
       if (data && data.metadata && status === StatusCode.OK) {
@@ -45,11 +78,28 @@ export default class ProductApi extends AxiosBase {
     return metadata;
   }
 
-  public async getAllProductDraft() {
+  public async getAllProductDraft({
+    page,
+    sortInventory,
+    sortPrice,
+    sortDate,
+    search,
+    limit
+  }: any) {
     let metadata = [];
     try {
       const { status, data } = await this.axiosInstance.get<any>(
-        this.prefixURL + 'drafts/all'
+        this.prefixURL + 'drafts/all',
+        {
+          params: {
+            page,
+            sortInventory,
+            sortPrice,
+            sortDate,
+            search,
+            limit
+          }
+        }
       );
 
       if (data && data.metadata && status === StatusCode.OK) {

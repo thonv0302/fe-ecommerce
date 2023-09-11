@@ -1,102 +1,59 @@
 <template>
   <div :class="['mt-2 flex ' + calcAlignment]">
     <nav class="isolate inline-flex rounded-md">
-      <!-- <component
-        :is="currentPage > 1 ? RouterLink : 'button'"
-        :class="[
-          'ms-1 w-[40px] h-[35px] text-sm font-semibold border rounded  flex items-center justify-center',
-          {
-            'text-gray-500  hover:bg-gray-50': currentPage > 1,
-            'text-gray-300': currentPage <= 1,
-          },
-        ]"
-        :disabled="currentPage <= 1"
+      <component :is="currentPage > 2 ? RouterLink : 'span'"
+        class="ms-1 w-[40px] h-[35px] text-sm font-semibold text-gray-500 border hover:bg-gray-50 flex items-center justify-center"
         :to="{
           name: route.name,
           query: {
             ...route.query,
             page: 1,
           },
-        }"
-        >First</component
-      > -->
-      <component
-        :is="currentPage > 1 ? RouterLink : 'button'"
-        :class="[
-          'ms-1 w-[40px] h-[35px] text-sm font-semibold  border  rounded flex items-center justify-center',
-          {
-            'text-gray-500 hover:bg-gray-50': currentPage > 1,
-            'text-gray-300': currentPage <= 1,
-          },
-        ]"
-        :disabled="currentPage <= 1"
+        }">First</component>
+      <RouterLink v-if="currentPage > 1"
+        class="ms-1 w-[40px] h-[35px] text-sm font-semibold text-gray-500 border hover:bg-gray-50 flex items-center justify-center"
         :to="{
           name: route.name,
           query: {
             ...route.query,
             page: currentPage - 1,
           },
-        }"
-        ><ChevronLeftIcon class="w-4 h-4"
-      /></component>
-      <RouterLink
-        v-for="i in pagination"
-        :key="i"
-        :to="{
-          name: route.name,
-          query: {
-            ...route.query,
-            page: i || 1,
-          },
-        }"
-        :class="[
-          'ms-1 w-[40px] h-[35px] text-sm   border rounded flex items-center justify-center',
-          {
-            'bg-indigo-600 text-white border-indigo-600 font-semibold':
-              currentPage === i,
-            'text-gray-500 hover:bg-gray-50': currentPage !== i,
-          },
-        ]"
-        >{{ i }}</RouterLink
-      >
-      <component
-        :is="totalPages - currentPage > 0 ? RouterLink : 'button'"
-        :class="[
-          'ms-1 w-[40px] h-[35px] text-sm font-semibold border rounded flex items-center justify-center',
-          {
-            'text-gray-500 hover:bg-gray-50': totalPages - currentPage > 0,
-            'text-gray-300': totalPages - currentPage < 1,
-          },
-        ]"
-        :disabled="totalPages - currentPage < 1"
+        }">
+        <ChevronLeftIcon class="w-4 h-4" />
+      </RouterLink>
+      <RouterLink v-for="i in pagination" :key="i" :to="{
+        name: route.name,
+        query: {
+          ...route.query,
+          page: i || 1,
+        },
+      }" :class="[
+  'ms-1 w-[40px] h-[35px] text-sm font-semibold  border flex items-center justify-center',
+  {
+    'bg-indigo-600 text-white border-indigo-600': currentPage === i,
+    'text-gray-500 hover:bg-gray-50': currentPage !== i,
+  },
+]">{{ i }}</RouterLink>
+      <RouterLink v-if="totalPages - currentPage > 0"
+        class="ms-1 w-[40px] h-[35px] text-sm font-semibold text-gray-500 border hover:bg-gray-50 flex items-center justify-center"
         :to="{
           name: route.name,
           query: {
             ...route.query,
             page: currentPage + 1,
           },
-        }"
-        ><ChevronRightIcon class="w-4 h-4"
-      /></component>
-      <!-- <component
-        :is="totalPages - currentPage > 0 ? RouterLink : 'button'"
-        :class="[
-          'ms-1 w-[40px] h-[35px] text-sm font-semibold border rounded flex items-center justify-center',
-          {
-            'text-gray-500 hover:bg-gray-50': totalPages - currentPage > 0,
-            'text-gray-300': totalPages - currentPage <= 0,
-          },
-        ]"
-        :disabled="totalPages - currentPage <= 0"
+        }">
+        <ChevronRightIcon class="w-4 h-4" />
+      </RouterLink>
+      <RouterLink v-if="totalPages - currentPage > 1"
+        class="ms-1 w-[40px] h-[35px] text-sm font-semibold text-gray-500 border hover:bg-gray-50 flex items-center justify-center"
         :to="{
           name: route.name,
           query: {
             ...route.query,
             page: totalPages,
           },
-        }"
-        >Last</component
-      > -->
+        }">Last</RouterLink>
     </nav>
   </div>
 </template>

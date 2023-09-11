@@ -2,22 +2,60 @@ import { acceptHMRUpdate, defineStore } from 'pinia';
 import { productApi } from '../axios/instances/productApi';
 
 export const useProductStore = defineStore('productStore', () => {
-  const getAllProductPublish = async (query) => {
-    console.log('query: ', query);
-
-    return await productApi.getAllProductPublish();
+  const getAllProductPublish = async ({
+    page,
+    sortInventory,
+    sortPrice,
+    sortDate,
+    search,
+    limit
+  }: any) => {
+    return await productApi.getAllProductPublish({
+      page,
+      sortInventory,
+      sortPrice,
+      sortDate,
+      search,
+      limit
+    });
   };
 
-  const getAllProductDraft = async (query) => {
-    console.log('query: ', query);
+  const getAllProductDraft = async ({
+    page,
+    sortInventory,
+    sortPrice,
+    sortDate,
+    search,
+    limit
+  }: any) => {
 
-    return await productApi.getAllProductDraft();
+    return await productApi.getAllProductDraft({
+      page,
+      sortInventory,
+      sortPrice,
+      sortDate,
+      search,
+      limit
+    });
   };
 
-  const getAllProductShop = async (query) => {
-    console.log('query: ', query);
+  const getAllProductShop = async ({
+    page,
+    sortInventory,
+    sortPrice,
+    sortDate,
+    search,
+    limit
+  }: any) => {
 
-    return await productApi.getAllProductShop();
+    return await productApi.getAllProductShop({
+      page,
+      sortInventory,
+      sortPrice,
+      sortDate,
+      search,
+      limit
+    });
   };
 
   return {
