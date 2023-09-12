@@ -110,7 +110,7 @@ const currentPage = computed(() => {
 });
 
 const pageSize = computed(() => {
-  return +route.query.size || 2;
+  return +route.query.size || 10;
 });
 
 const totalPages = computed(() => {

@@ -134,22 +134,13 @@ const setStatusRoute = (query: any) => {
 const sortBy = (queryName: string) => {
   const queryObj: any = {};
 
-  if (route.query.status) {
-    queryObj['status'] = route.query.status;
-  }
+  const arrQuery: string[] = ['status', 'page', 'search', 'size'];
 
-  if (route.query.page) {
-    queryObj['page'] = route.query.page;
+  for (const queryName of arrQuery) {
+    if (route.query[queryName]) {
+      queryObj[queryName] = route.query[queryName];
+    }
   }
-
-  if (route.query.search) {
-    queryObj['search'] = route.query.search;
-  }
-
-  if (route.query.size) {
-    queryObj['size'] = route.query.size;
-  }
-
   router.push({
     query: {
       ...queryObj,
@@ -329,7 +320,7 @@ const selectCondition = ref({
                     <Transition name="slide-fade">
                       <div
                         v-if="showDropdown"
-                        class="overflow-hidden absolute right-0 min-w-[140px] border rounded-lg shadow-lg bg-white"
+                        class="overflow-hidden absolute right-0 z-50 min-w-[140px] border rounded-lg shadow-lg bg-white"
                       >
                         <div class="px-3 pt-2">Sort by</div>
                         <div class="px-3 py-2">
@@ -424,24 +415,31 @@ const selectCondition = ref({
                   }}</span>
                   <div v-else class="flex items-center">
                     <span> Title </span>
-
-                    <button @click="sortBy('sortTitle')">
+                    <button>
                       <ChevronUpIcon
+                        @click="
+                          selectCondition.sort = '1';
+                          sortBy('sortTitle');
+                        "
                         :class="[
                           'w-4 h-2',
-                          // {
-                          //   'text-gray-800': activeSort('sortTitle') === '1',
-                          //   'text-gray-400': activeSort('sortTitle') === '-1',
-                          // },
+                          {
+                            'text-gray-800': selectCondition.sort === '1',
+                            'text-gray-400': selectCondition.sort === '-1',
+                          },
                         ]"
                       />
                       <ChevronDownIcon
+                        @click="
+                          selectCondition.sort = '-1';
+                          sortBy('sortTitle');
+                        "
                         :class="[
                           'w-4 h-2',
-                          // {
-                          //   'text-gray-800': activeSort('sortTitle') === '-1',
-                          //   'text-gray-400': activeSort('sortTitle') === '1',
-                          // },
+                          {
+                            'text-gray-800': selectCondition.sort === '-1',
+                            'text-gray-400': selectCondition.sort === '1',
+                          },
                         ]"
                       />
                     </button>
