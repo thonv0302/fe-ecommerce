@@ -2,10 +2,17 @@
   <component :is="layoutChosen">
     <RouterView v-slot="{ Component }">
       <Transition name="fade" mode="in-out">
-        <Component :is="Component" />
+        <Suspense>
+          <Component :is="Component" />
+          <!-- Loading -->
+          <template #fallback>
+            Loading...
+          </template>
+        </Suspense>
       </Transition>
     </RouterView>
   </component>
+  <Loading />
   <Toast />
 </template>
 
@@ -16,6 +23,7 @@ import Home from '@/layouts/Home.vue';
 import Auth from '@/layouts/Auth.vue';
 import Admin from '@/layouts/Admin.vue';
 import Toast from '@/components/global/common/toast/index.vue';
+import Loading from '@/components/global/common/loading/index.vue';
 
 const route = useRoute();
 

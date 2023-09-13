@@ -5,6 +5,7 @@ import { router } from './routers';
 import { createPinia } from 'pinia';
 
 import { veeValidatePlugin } from './plugins/veeValidate/veePlugin';
+// import { loadingPlugin } from './plugins/loading/index'
 
 const app = createApp(App);
 
