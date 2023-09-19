@@ -23,6 +23,8 @@ const navigation = [
     name: ROUTE_PRODUCT.list.name,
     href: ROUTE_PRODUCT.list.path,
     icon: TagIcon,
+    // namelist: [ROUTE_PRODUCT.list.name, pro ]
+    group: 'product',
   },
   {
     name: ROUTE_ADMIN.document.name,
@@ -30,6 +32,8 @@ const navigation = [
     icon: DocumentDuplicateIcon,
   },
 ];
+
+console.log('route', route.meta);
 </script>
 
 <template>
@@ -74,7 +78,7 @@ const navigation = [
             ' text-gray-900 group flex items-center px-2 py-2 text-base font-medium rounded-md',
             {
               'text-gray-600 hover:bg-gray-50 hover:text-gray-900 bg-gray-100':
-                route.name == item.name,
+                route.meta.group == item.group,
             },
           ]"
         >

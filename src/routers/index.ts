@@ -46,8 +46,23 @@ const routes = [
   },
   {
     path: ROUTE_PRODUCT.list.path,
-    component: () => import('../views/admin/product/list.vue'),
-    name: ROUTE_PRODUCT.list.name,
+    component: () => import('../views/admin/product/index.vue'),
+    // name: ROUTE_PRODUCT.list.name,
+    meta: {
+      group: 'product',
+    },
+    children: [
+      {
+        path: '',
+        name: ROUTE_PRODUCT.list.name,
+        component: () => import('../views/admin/product/list.vue'),
+      },
+      {
+        path: '/admin/products/add',
+        name: ROUTE_PRODUCT.add.name,
+        component: () => import('../views/admin/product/addOrEdit.vue'),
+      },
+    ],
   },
   {
     path: ROUTE_ADMIN.document.path,

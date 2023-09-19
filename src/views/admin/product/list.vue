@@ -15,6 +15,7 @@ import { useTimeAgo, watchDebounced, onClickOutside } from '@vueuse/core';
 import { useItemSelection } from '@/composables/useItemSelection';
 import Pagination from '@/components/global/common/pagination/index.vue';
 import useLoading from '@/components/global/common/loading/index';
+import { ROUTE_PRODUCT } from '../../../constants/routers';
 
 const { showLoading } = useLoading();
 
@@ -98,13 +99,15 @@ const getProductByStatus = async (status: Status) => {
   };
 
   setTimeout(async () => {
-    showLoading(true);
-    const { products: productList, total: totalRecord } = await obj[
-      `${status}`
-    ](route.query);
-    showLoading(false);
-    products.value = productList;
-    total.value = totalRecord;
+    if (typeof obj[`${status}`] == 'function') {
+      showLoading(true);
+      const { products: productList, total: totalRecord } = await obj[
+        `${status}`
+      ](route.query);
+      showLoading(false);
+      products.value = productList;
+      total.value = totalRecord;
+    }
   }, 0);
 };
 
@@ -243,97 +246,147 @@ const selectCondition = ref({
       <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
         <div class="mb-2 flex justify-between items-center">
           <h1 class="text-base text-gray-500">Products</h1>
-          <button type="button"
-            class="px-4 py-2 text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 flex justify-between items-center">
+          <RouterLink
+            :to="{
+              name: ROUTE_PRODUCT.add.name,
+            }"
+            class="px-4 py-2 text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 flex justify-between items-center"
+          >
             <PlusSmallIcon class="w-4 h-4" />
             <span class="ms-1"> Add product </span>
-          </button>
+          </RouterLink>
         </div>
         <div class="overflow-hidden border sm:rounded-lg">
           <div class="border-b text-sm text-gray-500 transition">
-            <div :class="[
-              'flex justify-between transition duration-150 ease-out',
-              {
-                'flex-col items-start': openSearchInput,
-                'items-center': !openSearchInput,
-              },
-            ]">
+            <div
+              :class="[
+                'flex justify-between transition duration-150 ease-out',
+                {
+                  'flex-col items-start': openSearchInput,
+                  'items-center': !openSearchInput,
+                },
+              ]"
+            >
               <div :class="['px-3 py-2']" v-if="!openSearchInput">
-                <button v-for="(status, index) in statusTab" :key="index" :class="[
-                  'px-2 py-1 min-w-[50px] hover:bg-gray-50 mr-1 rounded-md',
-                  {
-                    ' bg-slate-100':
-                      status.query.status === route.query.status,
-                  },
-                ]" @click="setStatusRoute(status.query)">
+                <button
+                  v-for="(status, index) in statusTab"
+                  :key="index"
+                  :class="[
+                    'px-2 py-1 min-w-[50px] hover:bg-gray-50 mr-1 rounded-md',
+                    {
+                      ' bg-slate-100':
+                        status.query.status === route.query.status,
+                    },
+                  ]"
+                  @click="setStatusRoute(status.query)"
+                >
                   {{ status.title }}
                 </button>
               </div>
 
-              <div :class="[
-                'flex justify-between px-3 py-2 transition',
-                {
-                  'w-full': openSearchInput,
-                },
-              ]">
+              <div
+                :class="[
+                  'flex justify-between px-3 py-2 transition',
+                  {
+                    'w-full': openSearchInput,
+                  },
+                ]"
+              >
                 <Transition name="slide-fade">
                   <div v-if="openSearchInput" class="flex-1">
-                    <input id="search" name="search" type="text" ref="inputSearch" v-model="searchValue" :class="[
-                      'block w-full px-2 py-0 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
-                    ]" />
+                    <input
+                      id="search"
+                      name="search"
+                      type="text"
+                      ref="inputSearch"
+                      v-model="searchValue"
+                      :class="[
+                        'block w-full px-2 py-0 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+                      ]"
+                    />
                   </div>
                 </Transition>
                 <div>
-                  <button class="py-1 px-2 ml-3 hover:bg-gray-50 rounded-md" @click="openSearchInputBox">
-                    <component :is="!openSearchInput ? MagnifyingGlassIcon : XMarkIcon" class="w-4 h-4" />
+                  <button
+                    class="py-1 px-2 ml-3 hover:bg-gray-50 rounded-md"
+                    @click="openSearchInputBox"
+                  >
+                    <component
+                      :is="!openSearchInput ? MagnifyingGlassIcon : XMarkIcon"
+                      class="w-4 h-4"
+                    />
                   </button>
                   <div class="inline-block relative" ref="target">
-                    <button class="ml-1 py-1 px-2 hover:bg-gray-50 rounded-md h-[27px]"
-                      @click="showDropdown = !showDropdown">
+                    <button
+                      class="ml-1 py-1 px-2 hover:bg-gray-50 rounded-md h-[27px]"
+                      @click="showDropdown = !showDropdown"
+                    >
                       <ArrowsUpDownIcon class="w-4 h-4" />
                     </button>
                     <Transition name="slide-fade">
-                      <div v-if="showDropdown"
-                        class="overflow-hidden absolute right-0 z-50 min-w-[140px] border rounded-lg shadow-lg bg-white">
+                      <div
+                        v-if="showDropdown"
+                        class="overflow-hidden absolute right-0 z-50 min-w-[140px] border rounded-lg shadow-lg bg-white"
+                      >
                         <div class="px-3 pt-2">Sort by</div>
                         <div class="px-3 py-2">
-                          <div v-for="(condition, idx) in sortConditions" :key="condition.id" :class="[
-                            'flex items-center',
-                            {
-                              'mb-3': idx !== sortConditions.length - 1,
-                            },
-                          ]">
-                            <input type="radio" name="sort-condition" :id="`${condition.id}`" :value="condition"
-                              v-model="selectCondition" @click="sortBy(condition.queryKey)"
-                              class="h-4 w-4 text-indigo-600 border-gray-300" />
-                            <label :for="`${condition.id}`"
-                              class="ml-3 block text-sm font-medium text-gray-600 cursor-pointer">
+                          <div
+                            v-for="(condition, idx) in sortConditions"
+                            :key="condition.id"
+                            :class="[
+                              'flex items-center',
+                              {
+                                'mb-3': idx !== sortConditions.length - 1,
+                              },
+                            ]"
+                          >
+                            <input
+                              type="radio"
+                              name="sort-condition"
+                              :id="`${condition.id}`"
+                              :value="condition"
+                              v-model="selectCondition"
+                              @click="sortBy(condition.queryKey)"
+                              class="h-4 w-4 text-indigo-600 border-gray-300"
+                            />
+                            <label
+                              :for="`${condition.id}`"
+                              class="ml-3 block text-sm font-medium text-gray-600 cursor-pointer"
+                            >
                               {{ condition.name }}
                             </label>
                           </div>
                         </div>
-                        <div class="h-[1px] w-full bg-slate-200 text-left"></div>
+                        <div
+                          class="h-[1px] w-full bg-slate-200 text-left"
+                        ></div>
                         <div v-if="selectCondition.asc">
-                          <button :class="[
-                            'py-2 px-3 block text-left w-full',
-                            {
-                              'bg-slate-100': selectCondition.sort === '1',
-                            },
-                          ]" @click="
-  selectCondition.sort = '1';
-sortBy(selectCondition.queryKey);
-">
+                          <button
+                            :class="[
+                              'py-2 px-3 block text-left w-full',
+                              {
+                                'bg-slate-100': selectCondition.sort === '1',
+                              },
+                            ]"
+                            @click="
+                              selectCondition.sort = '1';
+                              sortBy(selectCondition.queryKey);
+                            "
+                          >
                             {{ selectCondition.asc }}
                           </button>
-                          <button :class="[
-                            'py-2 px-3 block text-left w-full',
-                            {
-                              'bg-slate-100': selectCondition.sort === '-1',
-                            },
-                          ]" @click="
-  selectCondition.sort = '-1';
-sortBy(selectCondition.queryKey);
-">
+                          <button
+                            :class="[
+                              'py-2 px-3 block text-left w-full',
+                              {
+                                'bg-slate-100': selectCondition.sort === '-1',
+                              },
+                            ]"
+                            @click="
+                              selectCondition.sort = '-1';
+                              sortBy(selectCondition.queryKey);
+                            "
+                          >
                             {{ selectCondition.desc }}
                           </button>
                         </div>
@@ -348,76 +401,102 @@ sortBy(selectCondition.queryKey);
             <thead class="bg-gray-50">
               <tr>
                 <th scope="col" class="p-3 whitespace-nowrap w-8">
-                  <input ref="checkbox" type="checkbox" :checked="allAreSelected" :indeterminate="partialSelection"
+                  <input
+                    ref="checkbox"
+                    type="checkbox"
+                    :checked="allAreSelected"
+                    :indeterminate="partialSelection"
                     class="h-4 w-4 text-indigo-600 border-gray-300 rounded indeterminate:bg-indigo-600"
-                    @click="bulkSelect" />
+                    @click="bulkSelect"
+                  />
                 </th>
-                <th scope="col" :class="[
-                  'p-3 text-left text-sm font-medium text-gray-500 tracking-wider',
-                ]">
+                <th
+                  scope="col"
+                  :class="[
+                    'p-3 text-left text-sm font-medium text-gray-500 tracking-wider',
+                  ]"
+                >
                   <span v-if="itemsSelection.items.size">{{
                     `${itemsSelection.items.size} selected`
                   }}</span>
                   <div v-else class="flex items-center">
                     <span> Title </span>
                     <button>
-                      <ChevronUpIcon @click="
-                        selectCondition.sort = '1';
-                      sortBy('sortTitle');
-                      " :class="[
-      'w-4 h-2',
-      {
-        'text-gray-800': selectCondition.sort === '1',
-        'text-gray-400': selectCondition.sort === '-1',
-      },
-    ]" />
-                      <ChevronDownIcon @click="
-                        selectCondition.sort = '-1';
-                      sortBy('sortTitle');
-                      " :class="[
-  'w-4 h-2',
-  {
-    'text-gray-800': selectCondition.sort === '-1',
-    'text-gray-400': selectCondition.sort === '1',
-  },
-]" />
+                      <ChevronUpIcon
+                        @click="
+                          selectCondition.sort = '1';
+                          sortBy('sortTitle');
+                        "
+                        :class="[
+                          'w-4 h-2',
+                          {
+                            'text-gray-800': selectCondition.sort === '1',
+                            'text-gray-400': selectCondition.sort === '-1',
+                          },
+                        ]"
+                      />
+                      <ChevronDownIcon
+                        @click="
+                          selectCondition.sort = '-1';
+                          sortBy('sortTitle');
+                        "
+                        :class="[
+                          'w-4 h-2',
+                          {
+                            'text-gray-800': selectCondition.sort === '-1',
+                            'text-gray-400': selectCondition.sort === '1',
+                          },
+                        ]"
+                      />
                     </button>
                   </div>
                 </th>
-                <th scope="col" :class="[
-                  'p-3 text-left text-sm font-medium text-gray-500 tracking-wider',
-                  {
-                    invisible: itemsSelection.items.size > 0,
-                  },
-                ]">
+                <th
+                  scope="col"
+                  :class="[
+                    'p-3 text-left text-sm font-medium text-gray-500 tracking-wider',
+                    {
+                      invisible: itemsSelection.items.size > 0,
+                    },
+                  ]"
+                >
                   Status
                 </th>
-                <th scope="col" :class="[
-                  'p-3 text-left text-sm font-medium text-gray-500 tracking-wider ',
-                  {
-                    invisible: itemsSelection.items.size > 0,
-                  },
-                ]">
+                <th
+                  scope="col"
+                  :class="[
+                    'p-3 text-left text-sm font-medium text-gray-500 tracking-wider ',
+                    {
+                      invisible: itemsSelection.items.size > 0,
+                    },
+                  ]"
+                >
                   <div class="flex items-center">
                     <span> Inventory </span>
                   </div>
                 </th>
-                <th scope="col" :class="[
-                  'p-3 text-left text-sm font-medium text-gray-500 tracking-wider',
-                  {
-                    invisible: itemsSelection.items.size > 0,
-                  },
-                ]">
+                <th
+                  scope="col"
+                  :class="[
+                    'p-3 text-left text-sm font-medium text-gray-500 tracking-wider',
+                    {
+                      invisible: itemsSelection.items.size > 0,
+                    },
+                  ]"
+                >
                   <div class="flex items-center">
                     <span> Price </span>
                   </div>
                 </th>
-                <th scope="col" :class="[
-                  'p-3 text-left text-sm font-medium text-gray-500 tracking-wider',
-                  {
-                    invisible: itemsSelection.items.size > 0,
-                  },
-                ]">
+                <th
+                  scope="col"
+                  :class="[
+                    'p-3 text-left text-sm font-medium text-gray-500 tracking-wider',
+                    {
+                      invisible: itemsSelection.items.size > 0,
+                    },
+                  ]"
+                >
                   <div class="flex items-center">
                     <span> Date </span>
                   </div>
@@ -428,14 +507,25 @@ sortBy(selectCondition.queryKey);
               </tr>
             </thead>
             <tbody>
-              <tr v-for="product in products" :key="product._id" class="cursor-pointer">
+              <tr
+                v-for="product in products"
+                :key="product._id"
+                class="cursor-pointer"
+              >
                 <td class="px-3 py-4 whitespace-nowrap w-8">
-                  <input type="checkbox" :checked="itemsSelection.items.has(product)"
+                  <input
+                    type="checkbox"
+                    :checked="itemsSelection.items.has(product)"
                     @click="itemsSelection.toggle(product)"
-                    class="h-4 w-4 text-indigo-600 border-gray-300 rounded me-1 indeterminate:bg-indigo-600" />
+                    class="h-4 w-4 text-indigo-600 border-gray-300 rounded me-1 indeterminate:bg-indigo-600"
+                  />
                 </td>
                 <td class="px-3 py-4 whitespace-nowrap flex items-center">
-                  <img class="w-8 h-8 me-2 rounded" :src="product.product_thumb" alt="" />
+                  <img
+                    class="w-8 h-8 me-2 rounded"
+                    :src="product.product_thumb"
+                    alt=""
+                  />
                   <span class="text-sm font-medium text-gray-500">
                     {{ product.product_name }}
                   </span>
@@ -452,8 +542,13 @@ sortBy(selectCondition.queryKey);
                 <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
                   {{ useTimeAgo(product.createdAt) }}
                 </td>
-                <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <RouterLink to="/" class="text-indigo-600 hover:text-indigo-900 flex">
+                <td
+                  class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium"
+                >
+                  <RouterLink
+                    to="/"
+                    class="text-indigo-600 hover:text-indigo-900 flex"
+                  >
                     <PencilSquareIcon class="w-4 h-4" />
                   </RouterLink>
                 </td>

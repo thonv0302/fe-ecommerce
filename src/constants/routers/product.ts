@@ -7,7 +7,7 @@ export default {
     },
   },
   add: {
-    path: '/products/add',
+    path: '/add',
     name: 'productAdd',
     meta: {
       transistion: 'slide',

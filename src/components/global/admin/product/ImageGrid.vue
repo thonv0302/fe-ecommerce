@@ -1,0 +1,49 @@
+<template>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <button>
+      <img
+        class="ufaQm"
+        src="https://cdn.shopify.com/s/files/1/0834/2087/3014/files/kh_e92e94e4-2140-40c5-892f-409f1cca25d1.jpg?v=1694952441"
+        alt=""
+      />
+    </button>
+    <button>
+      <img
+        class="ufaQm"
+        src="https://cdn.shopify.com/s/files/1/0834/2087/3014/files/kh_e92e94e4-2140-40c5-892f-409f1cca25d1.jpg?v=1694952441"
+        alt=""
+      />
+    </button>
+    <button>
+      <img
+        class="ufaQm"
+        src="https://cdn.shopify.com/s/files/1/0834/2087/3014/files/kh_e92e94e4-2140-40c5-892f-409f1cca25d1.jpg?v=1694952441"
+        alt=""
+      />
+    </button>
+
+    <button>
+      <img
+        class="ufaQm"
+        src="https://cdn.shopify.com/s/files/1/0834/2087/3014/files/kh_e92e94e4-2140-40c5-892f-409f1cca25d1.jpg?v=1694952441"
+        alt=""
+      />
+    </button>
+    <button>
+      <img
+        class="ufaQm"
+        src="https://cdn.shopify.com/s/files/1/0834/2087/3014/files/kh_e92e94e4-2140-40c5-892f-409f1cca25d1.jpg?v=1694952441"
+        alt=""
+      />
+    </button>
+    <button>
+      <img
+        class="ufaQm"
+        src="https://cdn.shopify.com/s/files/1/0834/2087/3014/files/kh_e92e94e4-2140-40c5-892f-409f1cca25d1.jpg?v=1694952441"
+        alt=""
+      />
+    </button>
+  </div>
+</template>
+
+<script setup lang="ts"></script>
