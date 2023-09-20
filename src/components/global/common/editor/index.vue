@@ -1,21 +1,34 @@
 <template>
   <div id="editor"></div>
+  <ManageImageModal
+    @closeModel="isShowModal = false"
+    :show="isShowModal"
+    size="md"
+    @insertImageUrl="(img) => insertImage(img)"
+  />
 </template>
 
 <script setup lang="ts">
 import Quill from 'quill';
+import ImageResize from 'quill-image-resize';
+Quill.register('modules/imageResize', ImageResize);
 import 'quill/dist/quill.core.css';
 import 'quill/dist/quill.bubble.css';
 import 'quill/dist/quill.snow.css';
 import { onMounted, ref, onUnmounted } from 'vue';
+import ManageImageModal from '@/components/global/admin/product/modal/ManageImage.vue';
 
 const props = defineProps(['modelValue']);
 const emit = defineEmits(['update:modelValue', 'handleImage']);
 
 const quill = ref();
+
+const isShowModal = ref(false);
+
 onMounted(() => {
   var options = {
     modules: {
+      imageResize: {},
       toolbar: [
         [{ header: [1, 2, 3, 4, 5, 6, false] }],
         ['bold', 'italic', 'underline', 'strike'],
@@ -37,13 +50,23 @@ onMounted(() => {
   });
 
   quill.value.root.innerHTML = props.modelValue;
-  // console.log('quill.value: ', quill.value);
 
   var toolbar = quill.value.getModule('toolbar');
   toolbar.addHandler('image', () => {
-    emit('handleImage');
+    isShowModal.value = true;
   });
 });
+
+const insertImage = (url: string) => {
+  // quill.value.focus();
+  quill.value.insertEmbed(
+    quill.value.getSelection()?.index || 0,
+    'image',
+    url,
+    'user'
+  );
+  isShowModal.value = false;
+};
 
 onUnmounted(() => {
   if (quill.value) {

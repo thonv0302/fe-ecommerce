@@ -23,7 +23,6 @@ const navigation = [
     name: ROUTE_PRODUCT.list.name,
     href: ROUTE_PRODUCT.list.path,
     icon: TagIcon,
-    // namelist: [ROUTE_PRODUCT.list.name, pro ]
     group: 'product',
   },
   {
