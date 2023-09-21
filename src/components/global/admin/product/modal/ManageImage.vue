@@ -12,6 +12,7 @@
         <input
           type="file"
           class="absolute top-0 left-0 bottom-0 right-0 opacity-0"
+          @change="uploadFile"
         />
       </button>
       <button
@@ -43,7 +44,12 @@ const emits = defineEmits(['insertImageUrl']);
 const imgUrl = ref('');
 const isUploadFile = ref(false);
 const setImage = (data: any) => {
-  imgUrl.value = data.url;
+  const regex = /^https?:\/\/[^\s/$.?#].[^\s]*$/;
+  if (regex.test(data.url)) {
+    imgUrl.value = data.url;
+  } else {
+    imgUrl.value = '';
+  }
 };
 
 const insertImage = () => {
@@ -53,6 +59,10 @@ const insertImage = () => {
 provide('image', {
   setImage,
 });
+
+const uploadFile = (e) => {
+  debugger;
+};
 
 const activeTab = (isUpload: boolean) => {
   imgUrl.value = '';

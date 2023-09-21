@@ -63,7 +63,7 @@ const insertImage = (url: string) => {
     quill.value.getSelection()?.index || 0,
     'image',
     url,
-    'user'
+    'api'
   );
   isShowModal.value = false;
 };

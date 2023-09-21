@@ -8,6 +8,7 @@
         <input
           id="pastedUrl"
           name="pastedUrl"
+          v-model="url"
           placeholder="http://"
           type="text"
           :class="[
@@ -19,4 +20,21 @@
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { inject, ref, watch } from 'vue';
+
+const url = ref('');
+
+const { setImage } = inject('image');
+
+watch(
+  () => url.value,
+  (newVal) => {
+    setImage({
+      name: 'image from url',
+      alt: 'image',
+      url: newVal,
+    });
+  }
+);
+</script>
