@@ -51,7 +51,7 @@ onMounted(() => {
 
   <div class="mt-8">
     <VeeForm class="space-y-6" v-slot="{ errors }" @submit="onLogin">
-      <div>
+`      <div>
         <label for="email" class="block text-sm font-medium text-gray-700">
           Email address
         </label>
@@ -66,7 +66,7 @@ onMounted(() => {
             ]" />
           <ErrorMessage name="email" class="mt-2 text-sm text-red-600" />
         </div>
-      </div>
+      </div>`
 
       <div class="space-y-1">
         <label for="password" class="block text-sm font-medium text-gray-700">

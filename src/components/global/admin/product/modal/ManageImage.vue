@@ -4,28 +4,18 @@
       <Navtab :tabs="tabs" @activeTab="(isUpload) => activeTab(isUpload)" />
     </template>
     <template #button>
-      <button
-        v-if="isUploadFile"
-        class="relative px-3 py-2 border text-sm bg-gray-50 transition-all hover:bg-gray-100 rounded-md me-2"
-      >
+      <button v-if="isUploadFile"
+        class="relative px-3 py-2 border text-sm bg-gray-50 transition-all hover:bg-gray-100 rounded-md me-2">
         Upload file
-        <input
-          type="file"
-          class="absolute top-0 left-0 bottom-0 right-0 opacity-0"
-          @change="uploadFile"
-        />
+        <input type="file" class="absolute top-0 left-0 bottom-0 right-0 opacity-0" @change="uploadFile" />
       </button>
-      <button
-        @click="insertImage"
-        :disable="imgUrl === ''"
-        :class="[
-          'px-3 py-2 border text-white text-sm transition-all rounded-md',
-          {
-            'bg-green-600 hover:bg-green-700': imgUrl !== '',
-            'bg-gray-400': imgUrl === '',
-          },
-        ]"
-      >
+      <button @click="insertImage" :disable="imgUrl === ''" :class="[
+        'px-3 py-2 border text-white text-sm transition-all rounded-md',
+        {
+          'bg-green-600 hover:bg-green-700': imgUrl !== '',
+          'bg-gray-400': imgUrl === '',
+        },
+      ]">
         Insert image
       </button>
     </template>
@@ -33,11 +23,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, provide, onUnmounted, onMounted } from 'vue';
+import { ref, provide, onMounted } from 'vue';
 import Modal from '@/components/global/common/modal/index.vue';
 import Navtab from '@/components/global/common/navtab/index.vue';
 import ImageGrid from '@/components/global/admin/product/ImageGrid.vue';
 import EnterImageUrl from '@/components/global/admin/product/EnterImageUrl.vue';
+import { useImageStore } from '@/stores/imageStore.ts'
+
+const imageStore = useImageStore()
 
 const emits = defineEmits(['insertImageUrl']);
 
@@ -53,15 +46,21 @@ const setImage = (data: any) => {
 };
 
 const insertImage = () => {
-  emits('insertImageUrl', imgUrl.value);
+  if (imgUrl.value !== '') {
+    emits('insertImageUrl', imgUrl.value);
+  }
 };
 
 provide('image', {
   setImage,
 });
 
-const uploadFile = (e) => {
-  debugger;
+const uploadFile = async (e) => {
+  // debugger;
+
+  await imageStore.createImage({
+    name: 'tho', alt: 'abc', url: 'https://cdn.shopify.com/s/files/1/0834/2087/3014/files/rose_8d0900ea-ada7-4ff5-bb67-ab721cc68637.png?v=1695188497', size: 2000, type: 'image/png', belong: 'product'
+  })
 };
 
 const activeTab = (isUpload: boolean) => {
