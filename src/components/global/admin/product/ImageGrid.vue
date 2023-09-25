@@ -11,8 +11,9 @@
     >
       <img
         class="absolute max-w-full max-h-full top-0 left-0 right-0 bottom-0 m-auto"
-        :src="item.url"
-      />
+        :src="'https://cdn.shopify.com/s/files/1/0834/2087/3014/files/rose-1586871279171887574344_0ea8e9ae-d303-449e-93cc-424ad356abcd.webp?v=1695029432'"
+        />
+        <!-- :src="item.url" -->
       <CheckCircleIcon
         v-if="currentIdx === idx"
         class="absolute w-4 h-4 bottom-1 right-1 text-sky-600"

@@ -36,11 +36,19 @@ export default class ImageApi extends AxiosBase {
     return metadata;
   }
 
-  public async getImages() {
+  public async getImages({
+    next_cursor,
+    previous_cursor
+  }: any) {
     let metadata = {};
     try {
       const { status, data } = await this.axiosInstance.get<any>(
-        this.prefixURL
+        this.prefixURL, {
+        params: {
+          next_cursor,
+          previous_cursor
+        }
+      }
       );
 
       if (data && data.metadata && status === StatusCode.OK) {

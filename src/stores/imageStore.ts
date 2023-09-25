@@ -6,8 +6,14 @@ export const useImageStore = defineStore('imageStore', () => {
     return await imageApi.uploadImage(file);
   };
 
-  const getImages = async () => {
-    return await imageApi.getImages();
+  const getImages = async ({
+    next_cursor,
+    previous_cursor
+  }) => {
+    return await imageApi.getImages({
+      next_cursor,
+      previous_cursor
+    });
   };
 
   return {

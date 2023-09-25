@@ -1,31 +1,38 @@
 <template>
   <Modal title="Insert image">
     <template #body>
-      <Navtab :tabs="tabs" @activeTab="(isUpload) => activeTab(isUpload)" />
+      <Navtab :tabs="tabs" @activeTab="(tab) => activeTab(tab)" />
     </template>
-    <template #button>
-      <button
-        v-if="isUploadFile"
-        class="relative px-3 py-2 border text-sm bg-gray-50 transition-all hover:bg-gray-100 rounded-md me-2"
-      >
+    <template #button-start v-if="pagination.next_cursor || pagination.previous_cursor">
+      <div class="me-auto">
+        <button :disabled="!pagination.previous_cursor" @click="prevImages"
+          class="px-1 py-2 border text-sm transition-all hover:bg-gray-100 rounded-l-md me-1">
+          <ChevronLeftIcon :class="['w-4 h-4', {
+            'text-gray-500': !pagination.previous_cursor
+          }]" />
+        </button>
+        <button :disabled="!pagination.next_cursor" @click="nextImages"
+          class="px-1 py-2 border text-sm transition-all hover:bg-gray-100 rounded-r-md">
+          <ChevronRightIcon :class="['w-4 h-4', {
+            'text-gray-500': !pagination.previous_cursor
+          }]" />
+        </button>
+      </div>
+    </template>
+    <template #buttons-end>
+
+      <button v-if="isUploadFile"
+        class="relative px-3 py-2 border text-sm bg-gray-50 transition-all hover:bg-gray-100 rounded-md me-2">
         Upload file
-        <input
-          type="file"
-          class="absolute top-0 left-0 bottom-0 right-0 opacity-0"
-          @change="uploadFile"
-        />
+        <input type="file" class="absolute top-0 left-0 bottom-0 right-0 opacity-0" @change="uploadFile" />
       </button>
-      <button
-        @click="insertImage"
-        :disable="imgUrl === ''"
-        :class="[
-          'px-3 py-2 border text-white text-sm transition-all rounded-md',
-          {
-            'bg-green-600 hover:bg-green-700': imgUrl !== '',
-            'bg-gray-400': imgUrl === '',
-          },
-        ]"
-      >
+      <button @click="insertImage" :disable="imgUrl === ''" :class="[
+        'px-3 py-2 border text-white text-sm transition-all rounded-md',
+        {
+          'bg-green-600 hover:bg-green-700': imgUrl !== '',
+          'bg-gray-400': imgUrl === '',
+        },
+      ]">
         Insert image
       </button>
     </template>
@@ -33,7 +40,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, provide, onMounted } from 'vue';
+import { ref, provide, onMounted, reactive } from 'vue';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/solid';
 import Modal from '@/components/global/common/modal/index.vue';
 import Navtab from '@/components/global/common/navtab/index.vue';
 import ImageGrid from '@/components/global/admin/product/ImageGrid.vue';
@@ -45,6 +53,10 @@ const imageStore = useImageStore();
 const emits = defineEmits(['insertImageUrl']);
 
 const imgUrl = ref('');
+const pagination = reactive({
+  next_cursor: null,
+  previous_cursor: null
+});
 const isUploadFile = ref(false);
 const setImage = (data: any) => {
   const regex = /^https?:\/\/[^\s/$.?#].[^\s]*$/;
@@ -65,15 +77,15 @@ provide('image', {
   setImage,
 });
 
-const uploadFile = async (e) => {
-  // debugger;
-
+const uploadFile = async (e: any) => {
   await imageStore.createImage(e.target.files[0]);
 };
 
-const activeTab = (isUpload: boolean) => {
+const activeTab = (tab: any) => {
   imgUrl.value = '';
-  isUploadFile.value = isUpload;
+  isUploadFile.value = tab.isUpload;
+  pagination.next_cursor = tab.pagination.next_cursor;
+  pagination.previous_cursor = tab.pagination.previous_cursor
 };
 
 const uploadImages = [
@@ -98,6 +110,10 @@ const tabs = ref([
     current: true,
     isUploadFile: true,
     component: () => ImageGrid,
+    pagination: {
+      next_cursor: null,
+      previous_cursor: null
+    },
     props: {
       items: uploadImages,
     },
@@ -107,6 +123,10 @@ const tabs = ref([
     current: false,
     isUploadFile: false,
     component: () => ImageGrid,
+    pagination: {
+      next_cursor: null,
+      previous_cursor: null,
+    },
     props: {
       items: productImages,
     },
@@ -114,9 +134,54 @@ const tabs = ref([
   { name: 'URL', current: false, component: () => EnterImageUrl },
 ]);
 
-onMounted(() => {
-  activeTab(true);
-  // imageStore.getImages();
+const prevImages = async () => {
+  const { uploadedImages } = await imageStore.getImages({
+    next_cursor: pagination.next_cursor,
+    previous_cursor: pagination.previous_cursor
+  });
+
+  console.log('uploadedImages: ', uploadedImages);
+
+  tabs.value[0].pagination.next_cursor = uploadedImages.pageInfo.next_cursor;
+  tabs.value[0].pagination.previous_cursor
+    = uploadedImages.pageInfo.previous_cursor
+    ;
+
+
+  pagination.next_cursor = tabs.value[0].pagination.next_cursor;
+  pagination.previous_cursor = tabs.value[0].pagination.previous_cursor
+}
+
+const nextImages = async () => {
+  const { uploadedImages } = await imageStore.getImages({
+    next_cursor: pagination.next_cursor,
+    previous_cursor: pagination.previous_cursor
+  });
+
+  console.log('uploadedImages: ', uploadedImages);
+
+  tabs.value[0].pagination.next_cursor = uploadedImages.pageInfo.next_cursor;
+  tabs.value[0].pagination.previous_cursor
+    = uploadedImages.pageInfo.previous_cursor
+    ;
+
+
+  pagination.next_cursor = tabs.value[0].pagination.next_cursor;
+  pagination.previous_cursor = tabs.value[0].pagination.previous_cursor
+}
+
+onMounted(async () => {
+  const { uploadedImages } = await imageStore.getImages({
+    next_cursor: null,
+    previous_cursor: null
+  });
+  tabs.value[0].pagination.next_cursor = uploadedImages.pageInfo.next_cursor;
+  tabs.value[0].pagination.previous_cursor
+    = uploadedImages.pageInfo.previous_cursor
+    ;
+
+  tabs.value[0].props.items = uploadedImages.edges
+  activeTab(tabs.value[0]);
 });
 </script>
 
