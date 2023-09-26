@@ -3,36 +3,74 @@
     <template #body>
       <Navtab :tabs="tabs" @activeTab="(tab) => activeTab(tab)" />
     </template>
-    <template #button-start v-if="pagination.next_cursor || pagination.previous_cursor">
-      <div class="me-auto">
-        <button :disabled="!pagination.previous_cursor" @click="prevImages"
-          class="px-1 py-2 border text-sm transition-all hover:bg-gray-100 rounded-l-md me-1">
-          <ChevronLeftIcon :class="['w-4 h-4', {
-            'text-gray-500': !pagination.previous_cursor
-          }]" />
+    <template #button-start>
+      <div
+        class="me-auto"
+        v-if="currentTab.firstItemCursor || currentTab.lastItemCursor"
+      >
+        <button
+          :disabled="!currentTab.firstItemCursor"
+          @click="prevImages"
+          :class="[
+            'px-1 py-2 border text-sm transition-all rounded-l-md me-1',
+            {
+              'hover:bg-gray-100': currentTab.firstItemCursor,
+            },
+          ]"
+        >
+          <ChevronLeftIcon
+            :class="[
+              'w-4 h-4',
+              {
+                'text-gray-500': !currentTab.firstItemCursor,
+              },
+            ]"
+          />
         </button>
-        <button :disabled="!pagination.next_cursor" @click="nextImages"
-          class="px-1 py-2 border text-sm transition-all hover:bg-gray-100 rounded-r-md">
-          <ChevronRightIcon :class="['w-4 h-4', {
-            'text-gray-500': !pagination.previous_cursor
-          }]" />
+        <button
+          :disabled="!currentTab.lastItemCursor"
+          @click="nextImages"
+          :class="[
+            'px-1 py-2 border text-sm transition-all rounded-r-md',
+            {
+              'hover:bg-gray-100': currentTab.lastItemCursor,
+            },
+          ]"
+        >
+          <ChevronRightIcon
+            :class="[
+              'w-4 h-4',
+              {
+                'text-gray-500': !currentTab.lastItemCursor,
+              },
+            ]"
+          />
         </button>
       </div>
     </template>
     <template #buttons-end>
-
-      <button v-if="isUploadFile"
-        class="relative px-3 py-2 border text-sm bg-gray-50 transition-all hover:bg-gray-100 rounded-md me-2">
+      <button
+        v-if="isUploadFile"
+        class="relative px-3 py-2 border text-sm bg-gray-50 transition-all hover:bg-gray-100 rounded-md me-2"
+      >
         Upload file
-        <input type="file" class="absolute top-0 left-0 bottom-0 right-0 opacity-0" @change="uploadFile" />
+        <input
+          type="file"
+          class="absolute top-0 left-0 bottom-0 right-0 opacity-0"
+          @change="uploadFile"
+        />
       </button>
-      <button @click="insertImage" :disable="imgUrl === ''" :class="[
-        'px-3 py-2 border text-white text-sm transition-all rounded-md',
-        {
-          'bg-green-600 hover:bg-green-700': imgUrl !== '',
-          'bg-gray-400': imgUrl === '',
-        },
-      ]">
+      <button
+        @click="insertImage"
+        :disable="imgUrl === ''"
+        :class="[
+          'px-3 py-2 border text-white text-sm transition-all rounded-md',
+          {
+            'bg-green-600 hover:bg-green-700': imgUrl !== '',
+            'bg-gray-400': imgUrl === '',
+          },
+        ]"
+      >
         Insert image
       </button>
     </template>
@@ -40,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, provide, onMounted, reactive } from 'vue';
+import { ref, provide, onMounted } from 'vue';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/solid';
 import Modal from '@/components/global/common/modal/index.vue';
 import Navtab from '@/components/global/common/navtab/index.vue';
@@ -53,10 +91,6 @@ const imageStore = useImageStore();
 const emits = defineEmits(['insertImageUrl']);
 
 const imgUrl = ref('');
-const pagination = reactive({
-  next_cursor: null,
-  previous_cursor: null
-});
 const isUploadFile = ref(false);
 const setImage = (data: any) => {
   const regex = /^https?:\/\/[^\s/$.?#].[^\s]*$/;
@@ -81,28 +115,13 @@ const uploadFile = async (e: any) => {
   await imageStore.createImage(e.target.files[0]);
 };
 
+const currentTab = ref<any>({});
+
 const activeTab = (tab: any) => {
   imgUrl.value = '';
   isUploadFile.value = tab.isUpload;
-  pagination.next_cursor = tab.pagination.next_cursor;
-  pagination.previous_cursor = tab.pagination.previous_cursor
+  currentTab.value = tabs.value[tab.index] as any;
 };
-
-const uploadImages = [
-  {
-    name: 'tho dz 1',
-    alt: 'tho dz',
-    url: 'https://cdn.shopify.com/s/files/1/0834/2087/3014/files/rose_8d0900ea-ada7-4ff5-bb67-ab721cc68637.png?v=1695188497',
-  },
-];
-
-const productImages = [
-  {
-    name: 'tho dz 2',
-    alt: 'tho dz',
-    url: 'https://cdn.shopify.com/s/files/1/0834/2087/3014/files/rose-1586871279171887574344_0ea8e9ae-d303-449e-93cc-424ad356abcd.webp?v=1695029432',
-  },
-];
 
 const tabs = ref([
   {
@@ -110,79 +129,76 @@ const tabs = ref([
     current: true,
     isUploadFile: true,
     component: () => ImageGrid,
-    pagination: {
-      next_cursor: null,
-      previous_cursor: null
-    },
+    type: 'shop',
     props: {
-      items: uploadImages,
+      items: [],
     },
+    firstItemCursor: null,
+    lastItemCursor: null,
   },
   {
     name: 'Product images',
     current: false,
     isUploadFile: false,
     component: () => ImageGrid,
-    pagination: {
-      next_cursor: null,
-      previous_cursor: null,
-    },
+    type: 'product',
     props: {
-      items: productImages,
+      items: [],
     },
+    firstItemCursor: null,
+    lastItemCursor: null,
   },
   { name: 'URL', current: false, component: () => EnterImageUrl },
 ]);
 
 const prevImages = async () => {
-  const { uploadedImages } = await imageStore.getImages({
-    next_cursor: pagination.next_cursor,
-    previous_cursor: pagination.previous_cursor
-  });
-
-  console.log('uploadedImages: ', uploadedImages);
-
-  tabs.value[0].pagination.next_cursor = uploadedImages.pageInfo.next_cursor;
-  tabs.value[0].pagination.previous_cursor
-    = uploadedImages.pageInfo.previous_cursor
-    ;
-
-
-  pagination.next_cursor = tabs.value[0].pagination.next_cursor;
-  pagination.previous_cursor = tabs.value[0].pagination.previous_cursor
-}
+  const { productImages, uploadedImages } = (await imageStore.getImages({
+    belong: currentTab.value.type,
+    next_cursor: currentTab.value.lastItemCursor,
+    previous_cursor: currentTab.value.firstItemCursor,
+  })) as any;
+  if (currentTab.value.type === 'product') {
+    findTabMapData(productImages);
+  }
+  if (currentTab.value.type === 'shop') {
+    findTabMapData(uploadedImages);
+  }
+};
 
 const nextImages = async () => {
-  const { uploadedImages } = await imageStore.getImages({
-    next_cursor: pagination.next_cursor,
-    previous_cursor: pagination.previous_cursor
-  });
-
-  console.log('uploadedImages: ', uploadedImages);
-
-  tabs.value[0].pagination.next_cursor = uploadedImages.pageInfo.next_cursor;
-  tabs.value[0].pagination.previous_cursor
-    = uploadedImages.pageInfo.previous_cursor
-    ;
-
-
-  pagination.next_cursor = tabs.value[0].pagination.next_cursor;
-  pagination.previous_cursor = tabs.value[0].pagination.previous_cursor
-}
+  const { productImages, uploadedImages } = (await imageStore.getImages({
+    belong: currentTab.value.type,
+    next_cursor: currentTab.value.lastItemCursor,
+    previous_cursor: currentTab.value.firstItemCursor,
+  })) as any;
+  if (currentTab.value.type === 'product') {
+    findTabMapData(productImages);
+  }
+  if (currentTab.value.type === 'shop') {
+    findTabMapData(uploadedImages);
+  }
+};
 
 onMounted(async () => {
-  const { uploadedImages } = await imageStore.getImages({
-    next_cursor: null,
-    previous_cursor: null
+  const { productImages, uploadedImages } = (await imageStore.getImages(
+    {}
+  )) as any;
+  findTabMapData(productImages);
+  findTabMapData(uploadedImages);
+  activeTab({
+    isUpload: tabs.value[0].isUploadFile,
+    index: 0,
   });
-  tabs.value[0].pagination.next_cursor = uploadedImages.pageInfo.next_cursor;
-  tabs.value[0].pagination.previous_cursor
-    = uploadedImages.pageInfo.previous_cursor
-    ;
-
-  tabs.value[0].props.items = uploadedImages.edges
-  activeTab(tabs.value[0]);
 });
+
+const findTabMapData = (images: any) => {
+  const foundTab = tabs.value.find((e) => e.type === images.belong);
+  if (foundTab && foundTab.props) {
+    foundTab.props.items = images.data;
+    foundTab['firstItemCursor'] = images.firstItemCursor;
+    foundTab['lastItemCursor'] = images.lastItemCursor;
+  }
+};
 </script>
 
 <style lang="scss" scoped></style>

@@ -7,12 +7,14 @@ export const useImageStore = defineStore('imageStore', () => {
   };
 
   const getImages = async ({
-    next_cursor,
-    previous_cursor
+    belong = '',
+    next_cursor = null,
+    previous_cursor = null,
   }) => {
     return await imageApi.getImages({
+      belong,
       next_cursor,
-      previous_cursor
+      previous_cursor,
     });
   };
 

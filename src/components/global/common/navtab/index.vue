@@ -1,18 +1,29 @@
 <template>
   <!-- divide-x divide-gray-200 -->
   <nav>
-    <button v-for="(tab, tabIdx) in tabs" :key="tab.name" :class="['text-sm font-medium text-cente relative p-3']"
-      @click="activeTab(tabIdx)">
+    <button
+      v-for="(tab, tabIdx) in tabs"
+      :key="tab.name"
+      :class="['text-sm font-medium text-cente relative p-3']"
+      @click="activeTab(tabIdx)"
+    >
       <span class="">{{ tab.name }}</span>
-      <span aria-hidden="true" :class="[
-        'absolute inset-x-0 bottom-0 h-0.5',
-        tab.current ? 'bg-gray-800' : 'bg-transparent',
-      ]" />
+      <span
+        aria-hidden="true"
+        :class="[
+          'absolute inset-x-0 bottom-0 h-0.5',
+          tab.current ? 'bg-gray-800' : 'bg-transparent',
+        ]"
+      />
     </button>
   </nav>
   <hr class="-mx-3" />
   <div v-for="tab in tabs" class="my-3">
-    <component :is="tab.component()" v-if="tab.current" v-bind:prop="tab.props" />
+    <component
+      :is="tab.component()"
+      v-if="tab.current"
+      v-bind:prop="tab.props"
+    />
   </div>
 </template>
 
@@ -32,6 +43,8 @@ const activeTab = (idx: number) => {
     tabActive.current = false;
   }
   props.tabs[idx].current = true;
-  emits('activeTab', { isUpload: props.tabs[idx].isUploadFile, pagination: props.tabs[idx].pagination });
+  console.log('vao day');
+
+  emits('activeTab', { isUpload: props.tabs[idx].isUploadFile, index: idx });
 };
 </script>
