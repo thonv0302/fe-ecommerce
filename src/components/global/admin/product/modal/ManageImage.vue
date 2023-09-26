@@ -10,7 +10,7 @@
       >
         <button
           :disabled="!currentTab.firstItemCursor"
-          @click="prevImages"
+          @click="prevOrNextImages('prev')"
           :class="[
             'px-1 py-2 border text-sm transition-all rounded-l-md me-1',
             {
@@ -22,14 +22,14 @@
             :class="[
               'w-4 h-4',
               {
-                'text-gray-500': !currentTab.firstItemCursor,
+                'text-gray-400': !currentTab.firstItemCursor,
               },
             ]"
           />
         </button>
         <button
           :disabled="!currentTab.lastItemCursor"
-          @click="nextImages"
+          @click="prevOrNextImages('next')"
           :class="[
             'px-1 py-2 border text-sm transition-all rounded-r-md',
             {
@@ -41,7 +41,7 @@
             :class="[
               'w-4 h-4',
               {
-                'text-gray-500': !currentTab.lastItemCursor,
+                'text-gray-400': !currentTab.lastItemCursor,
               },
             ]"
           />
@@ -113,6 +113,7 @@ provide('image', {
 
 const uploadFile = async (e: any) => {
   await imageStore.createImage(e.target.files[0]);
+  prevOrNextImages();
 };
 
 const currentTab = ref<any>({});
@@ -151,25 +152,11 @@ const tabs = ref([
   { name: 'URL', current: false, component: () => EnterImageUrl },
 ]);
 
-const prevImages = async () => {
+const prevOrNextImages = async (type: string) => {
   const { productImages, uploadedImages } = (await imageStore.getImages({
     belong: currentTab.value.type,
-    next_cursor: currentTab.value.lastItemCursor,
-    previous_cursor: currentTab.value.firstItemCursor,
-  })) as any;
-  if (currentTab.value.type === 'product') {
-    findTabMapData(productImages);
-  }
-  if (currentTab.value.type === 'shop') {
-    findTabMapData(uploadedImages);
-  }
-};
-
-const nextImages = async () => {
-  const { productImages, uploadedImages } = (await imageStore.getImages({
-    belong: currentTab.value.type,
-    next_cursor: currentTab.value.lastItemCursor,
-    previous_cursor: currentTab.value.firstItemCursor,
+    next_cursor: type === 'next' ? currentTab.value.lastItemCursor : null,
+    previous_cursor: type == 'prev' ? currentTab.value.firstItemCursor : null,
   })) as any;
   if (currentTab.value.type === 'product') {
     findTabMapData(productImages);
@@ -183,8 +170,7 @@ onMounted(async () => {
   const { productImages, uploadedImages } = (await imageStore.getImages(
     {}
   )) as any;
-  findTabMapData(productImages);
-  findTabMapData(uploadedImages);
+  Promise.all([findTabMapData(productImages), findTabMapData(uploadedImages)]);
   activeTab({
     isUpload: tabs.value[0].isUploadFile,
     index: 0,
