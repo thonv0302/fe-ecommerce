@@ -4,48 +4,73 @@
       <Navtab :tabs="tabs" @activeTab="(tab) => activeTab(tab)" />
     </template>
     <template #button-start>
-      <div class="me-auto" v-if="currentTab.firstItemCursor || currentTab.lastItemCursor">
-        <button :disabled="!currentTab.firstItemCursor" @click="prevOrNextImages('prev')" :class="[
-          'px-1 py-2 border text-sm transition-all rounded-l-md me-1',
-          {
-            'hover:bg-gray-100': currentTab.firstItemCursor,
-          },
-        ]">
-          <ChevronLeftIcon :class="[
-            'w-4 h-4',
+      <div
+        class="me-auto"
+        v-if="currentTab.firstItemCursor || currentTab.lastItemCursor"
+      >
+        <button
+          :disabled="!currentTab.firstItemCursor"
+          @click="prevOrNextImages('prev')"
+          :class="[
+            'px-1 py-2 border text-sm transition-all rounded-l-md me-1',
             {
-              'text-gray-400': !currentTab.firstItemCursor,
+              'hover:bg-gray-100': currentTab.firstItemCursor,
             },
-          ]" />
+          ]"
+        >
+          <ChevronLeftIcon
+            :class="[
+              'w-4 h-4',
+              {
+                'text-gray-400': !currentTab.firstItemCursor,
+              },
+            ]"
+          />
         </button>
-        <button :disabled="!currentTab.lastItemCursor" @click="prevOrNextImages('next')" :class="[
-          'px-1 py-2 border text-sm transition-all rounded-r-md',
-          {
-            'hover:bg-gray-100': currentTab.lastItemCursor,
-          },
-        ]">
-          <ChevronRightIcon :class="[
-            'w-4 h-4',
+        <button
+          :disabled="!currentTab.lastItemCursor"
+          @click="prevOrNextImages('next')"
+          :class="[
+            'px-1 py-2 border text-sm transition-all rounded-r-md',
             {
-              'text-gray-400': !currentTab.lastItemCursor,
+              'hover:bg-gray-100': currentTab.lastItemCursor,
             },
-          ]" />
+          ]"
+        >
+          <ChevronRightIcon
+            :class="[
+              'w-4 h-4',
+              {
+                'text-gray-400': !currentTab.lastItemCursor,
+              },
+            ]"
+          />
         </button>
       </div>
     </template>
     <template #buttons-end>
-      <button v-if="isUploadFile"
-        class="relative px-3 py-2 border text-sm bg-gray-50 transition-all hover:bg-gray-100 rounded-md me-2">
+      <button
+        v-if="isUploadFile"
+        class="relative px-3 py-2 border text-sm bg-gray-50 transition-all hover:bg-gray-100 rounded-md me-2"
+      >
         Upload file
-        <input type="file" class="absolute top-0 left-0 bottom-0 right-0 opacity-0" @change="uploadFile" />
+        <input
+          type="file"
+          class="absolute top-0 left-0 bottom-0 right-0 opacity-0"
+          @change="uploadFile"
+        />
       </button>
-      <button @click="insertImage" :disable="imgUrl === ''" :class="[
-        'px-3 py-2 border text-white text-sm transition-all rounded-md',
-        {
-          'bg-green-600 hover:bg-green-700': imgUrl !== '',
-          'bg-gray-400': imgUrl === '',
-        },
-      ]">
+      <button
+        @click="insertImage"
+        :disable="imgUrl === ''"
+        :class="[
+          'px-3 py-2 border text-white text-sm transition-all rounded-md',
+          {
+            'bg-green-600 hover:bg-green-700': imgUrl !== '',
+            'bg-gray-400': imgUrl === '',
+          },
+        ]"
+      >
         Insert image
       </button>
     </template>
@@ -66,17 +91,21 @@ const imageStore = useImageStore();
 const props = defineProps({
   isShowModal: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 const emits = defineEmits(['insertImageUrl']);
 
 const imgUrl = ref('');
 const isUploadFile = ref(false);
 const setImage = (data: any) => {
-  const regex = /^https?:\/\/[^\s/$.?#].[^\s]*$/;
-  if (regex.test(data.url)) {
-    imgUrl.value = data.url;
+  if (data) {
+    const regex = /^https?:\/\/[^\s/$.?#].[^\s]*$/;
+    if (regex.test(data.url)) {
+      imgUrl.value = data.url;
+    } else {
+      imgUrl.value = '';
+    }
   } else {
     imgUrl.value = '';
   }
@@ -93,7 +122,9 @@ provide('image', {
 });
 
 const uploadFile = async (e: any) => {
+  findTabAndSetLoading();
   await imageStore.createImage(e.target.files[0]);
+  await refreshImage();
 };
 
 const currentTab = ref<any>({});
@@ -113,7 +144,7 @@ const tabs = ref([
     type: 'shop',
     props: {
       items: [],
-      isLoading: true
+      isLoading: true,
     },
     firstItemCursor: null,
     lastItemCursor: null,
@@ -126,7 +157,7 @@ const tabs = ref([
     type: 'product',
     props: {
       items: [],
-      isLoading: true
+      isLoading: true,
     },
     firstItemCursor: null,
     lastItemCursor: null,
@@ -135,11 +166,7 @@ const tabs = ref([
 ]);
 
 const prevOrNextImages = async (type: string) => {
-  const foundTab = tabs.value.find((e) => e.type === currentTab.value.type);
-  if (foundTab && foundTab.props) {
-    foundTab.props.isLoading = true;
-  }
-
+  findTabAndSetLoading();
   const { productImages, uploadedImages } = (await imageStore.getImages({
     belong: currentTab.value.type,
     next_cursor: type === 'next' ? currentTab.value.lastItemCursor : null,
@@ -153,19 +180,35 @@ const prevOrNextImages = async (type: string) => {
   }
 };
 
-watch(() => props.isShowModal, async (newVal) => {
-  if (newVal) {
-    const { productImages, uploadedImages } = (await imageStore.getImages(
-      {}
-    )) as any;
-    await Promise.all([findTabMapData(productImages), findTabMapData(uploadedImages)]);
-    activeTab({
-      isUpload: tabs.value[0].isUploadFile,
-      index: 0,
-    });
+watch(
+  () => props.isShowModal,
+  async (newVal) => {
+    if (newVal) {
+      await refreshImage();
+      activeTab({
+        isUpload: tabs.value[0].isUploadFile,
+        index: 0,
+      });
+    }
   }
-})
+);
 
+const findTabAndSetLoading = () => {
+  const foundTab = tabs.value.find((e) => e.type === currentTab.value.type);
+  if (foundTab && foundTab.props) {
+    foundTab.props.isLoading = true;
+  }
+};
+
+const refreshImage = async () => {
+  const { productImages, uploadedImages } = (await imageStore.getImages(
+    {}
+  )) as any;
+  await Promise.all([
+    findTabMapData(productImages),
+    findTabMapData(uploadedImages),
+  ]);
+};
 
 const findTabMapData = (images: any) => {
   const foundTab = tabs.value.find((e) => e.type === images.belong);
@@ -178,8 +221,8 @@ const findTabMapData = (images: any) => {
 };
 
 onUnmounted(() => {
-  tabs.value = []
-})
+  tabs.value = [];
+});
 </script>
 
 <style lang="scss" scoped></style>
