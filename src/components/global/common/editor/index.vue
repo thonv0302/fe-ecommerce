@@ -2,7 +2,7 @@
   <div id="editor"></div>
   <ManageImageModal
     @closeModel="isShowModal = false"
-    :show="isShowModal"
+    :isShowModal="isShowModal"
     size="md"
     @insertImageUrl="(img) => insertImage(img)"
   />

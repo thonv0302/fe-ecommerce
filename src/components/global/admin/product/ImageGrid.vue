@@ -1,31 +1,25 @@
 <template>
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-    <button
-      v-for="(item, idx) in prop.items"
-      :key="idx"
-      @click="activeImage(item, idx)"
-      :class="[
-        'aspect-square transition-all border hover:border-sky-600 rounded-sm flex justify-center items-center relative',
-        { 'border-sky-600': currentIdx === idx },
-      ]"
-    >
-      <img
-        class="absolute max-w-full max-h-full top-0 left-0 right-0 bottom-0 m-auto"
-        :src="'https://cdn.shopify.com/s/files/1/0834/2087/3014/files/rose-1586871279171887574344_0ea8e9ae-d303-449e-93cc-424ad356abcd.webp?v=1695029432'"
-        />
-        <!-- :src="item.url" -->
-      <CheckCircleIcon
-        v-if="currentIdx === idx"
-        class="absolute w-4 h-4 bottom-1 right-1 text-sky-600"
-      />
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4" v-if="!prop.isLoading">
+    <button v-for="(item, idx) in prop.items" :key="idx" @click="activeImage(item, idx)" :class="[
+      'aspect-square transition-all border hover:border-sky-600 rounded-sm flex justify-center items-center relative',
+      { 'border-sky-600': currentIdx === idx },
+    ]">
+      <img class="absolute max-w-full max-h-full top-0 left-0 right-0 bottom-0 m-auto"
+        :src="'https://cdn.shopify.com/s/files/1/0834/2087/3014/files/rose-1586871279171887574344_0ea8e9ae-d303-449e-93cc-424ad356abcd.webp?v=1695029432'" />
+      <CheckCircleIcon v-if="currentIdx === idx" class="absolute w-4 h-4 bottom-1 right-1 text-sky-600" />
     </button>
+  </div>
+  <div v-else class="w-full flex justify-center items-center h-28">
+    <Spinner :color="'text-black'" class1="w-10 h-10" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { inject, ref } from 'vue';
 import { CheckCircleIcon } from '@heroicons/vue/24/solid';
-const props = defineProps({
+import Spinner from '@/components/global/icons/Spinner.vue';
+
+defineProps({
   prop: {
     type: Object,
   },

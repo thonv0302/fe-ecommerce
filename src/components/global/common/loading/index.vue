@@ -1,7 +1,7 @@
 <template>
     <div v-if="isShow"
         class="absolute top-0 left-0 overflow-hidden bg-slate-400 h-screen w-full opacity-50 z-50 flex items-center justify-center">
-        <Spinner class="h-10 w-10" />
+        <Spinner class1="h-10 w-10" />
     </div>
 </template>
 
