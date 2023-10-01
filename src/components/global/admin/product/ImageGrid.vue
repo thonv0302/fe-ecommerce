@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref } from 'vue';
+import { inject } from 'vue';
 import { CheckCircleIcon } from '@heroicons/vue/24/solid';
 import Spinner from '@/components/global/icons/Spinner.vue';
 
@@ -35,12 +35,10 @@ defineProps({
   },
 });
 
-const { setImage } = inject('image');
-
-const currentIdx = ref(null);
+const { setImage, currentIdx } = inject('image');
 
 const activeImage = (item, idx) => {
-  if (!currentIdx.value && currentIdx.value != 0) {
+  if (currentIdx.value === null || currentIdx.value !== idx) {
     currentIdx.value = idx;
     setImage(item);
   } else {
@@ -48,4 +46,12 @@ const activeImage = (item, idx) => {
     setImage(null);
   }
 };
+
+const resetCurrentIdx = () => {
+  currentIdx.value = null;
+};
+
+defineExpose({
+  resetCurrentIdx,
+});
 </script>

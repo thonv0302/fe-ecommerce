@@ -1,12 +1,16 @@
 <template>
   <Transition name="modal">
-    <div v-if="show"
+    <div
+      v-if="show"
       class="fixed flex justify-center items-center z-[999] top-0 left-0 w-full h-full bg-black bg-opacity-50 overflow-hidden transition-all duration-500"
-      @click.self="emits('closeModel')">
-      <div :class="[
-        'modal-container transition-all p-3 duration-500 bg-white rounded-md shadow-md m-2 md:m-0',
-        modalStyle,
-      ]">
+      @click.self="emits('closeModel')"
+    >
+      <div
+        :class="[
+          'modal-container transition-all p-3 duration-500 bg-white rounded-md shadow-md m-2 md:m-0',
+          modalStyle,
+        ]"
+      >
         <!-- Header -->
         <div class="flex justify-between items-center mb-3">
           <h6>{{ title }}</h6>
@@ -22,8 +26,10 @@
         <div class="flex justify-end items-center mt-3">
           <slot name="button-start" />
           <div>
-            <button @click.stop="emits('closeModel')"
-              class="px-3 py-2 border text-sm bg-gray-50 transition-all hover:bg-gray-100 rounded-md me-2">
+            <button
+              @click.stop="emits('closeModel')"
+              class="px-3 py-2 border text-sm bg-gray-50 transition-all hover:bg-gray-100 rounded-md me-2"
+            >
               Cancel
             </button>
             <slot name="buttons-end" />
@@ -35,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { XMarkIcon } from '@heroicons/vue/24/solid';
 const props = defineProps({
   show: {
@@ -68,9 +74,16 @@ const modalStyle = computed(() => {
   return sizeObj[props.size];
 });
 
+const body = ref<HTMLElement>();
 onMounted(() => {
-  let body = document.querySelector('body') as HTMLElement;
-  body.style.overflow = 'hidden';
+  body.value = document.querySelector('body') as HTMLElement;
+  body.value.style.overflow = 'hidden';
+});
+
+onUnmounted(() => {
+  if (body.value && body.value.style) {
+    body.value.style.overflow = 'auto';
+  }
 });
 </script>
 

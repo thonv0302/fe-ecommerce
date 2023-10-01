@@ -75,4 +75,8 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.ql-editor {
+  max-height: 400px;
+}
+</style>

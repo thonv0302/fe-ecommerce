@@ -9,12 +9,13 @@
         v-if="currentTab.firstItemCursor || currentTab.lastItemCursor"
       >
         <button
-          :disabled="!currentTab.firstItemCursor"
+          :disabled="!currentTab.firstItemCursor || currentTab.props.isLoading"
           @click="prevOrNextImages('prev')"
           :class="[
             'px-1 py-2 border text-sm transition-all rounded-l-md me-1',
             {
-              'hover:bg-gray-100': currentTab.firstItemCursor,
+              'hover:bg-gray-100':
+                currentTab.firstItemCursor || !currentTab.props.isLoading,
             },
           ]"
         >
@@ -22,18 +23,20 @@
             :class="[
               'w-4 h-4',
               {
-                'text-gray-400': !currentTab.firstItemCursor,
+                'text-gray-400':
+                  !currentTab.firstItemCursor || currentTab.props.isLoading,
               },
             ]"
           />
         </button>
         <button
-          :disabled="!currentTab.lastItemCursor"
+          :disabled="!currentTab.lastItemCursor || currentTab.props.isLoading"
           @click="prevOrNextImages('next')"
           :class="[
             'px-1 py-2 border text-sm transition-all rounded-r-md',
             {
-              'hover:bg-gray-100': currentTab.lastItemCursor,
+              'hover:bg-gray-100':
+                currentTab.lastItemCursor || !currentTab.props.isLoading,
             },
           ]"
         >
@@ -41,7 +44,8 @@
             :class="[
               'w-4 h-4',
               {
-                'text-gray-400': !currentTab.lastItemCursor,
+                'text-gray-400':
+                  !currentTab.lastItemCursor || currentTab.props.isLoading,
               },
             ]"
           />
@@ -117,8 +121,10 @@ const insertImage = () => {
   }
 };
 
+const currentIdx = ref(null);
 provide('image', {
   setImage,
+  currentIdx: currentIdx,
 });
 
 const uploadFile = async (e: any) => {
@@ -166,6 +172,8 @@ const tabs = ref([
 ]);
 
 const prevOrNextImages = async (type: string) => {
+  currentIdx.value = null;
+  imgUrl.value = '';
   findTabAndSetLoading();
   const { productImages, uploadedImages } = (await imageStore.getImages({
     belong: currentTab.value.type,
