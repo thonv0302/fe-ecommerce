@@ -9,8 +9,8 @@
       :key="item.id"
       class="aspect-square border bg-white rounded-sm flex justify-center items-center relative"
       :draggable="true"
-      @dragstart="onDrag($event, idx)"
-      @drop="onDrop($event, idx)"
+      @dragstart="onDrag(idx)"
+      @drop="onDrop(idx)"
       @dragover.prevent
     >
       <img
@@ -20,40 +20,65 @@
       />
     </div>
     <div
-      class="border bg-white rounded-sm flex flex-col justify-center items-center"
+      class="aspect-square border bg-white rounded-sm flex flex-col justify-center items-center"
     >
-      <button
+      <!-- <button
         class="block px-3 py-2 border text-sm bg-gray-50 transition-all hover:bg-gray-100 rounded-md"
       >
         Add
+      </button> -->
+      <button
+        class="relative px-3 py-2 border text-sm bg-gray-50 transition-all hover:bg-gray-100 rounded-md me-2"
+      >
+        Add
+        <input
+          type="file"
+          class="absolute top-0 left-0 bottom-0 right-0 opacity-0"
+          @change="uploadFiles($event, 'more')"
+          multiple
+        />
       </button>
       <h1 class="text-sm mt-2">Add from URL</h1>
     </div>
   </TransitionGroup>
 </template>
 <script lang="ts" setup>
-import { reactive, ref } from 'vue';
+import { ref, watch } from 'vue';
 const props = defineProps({
-  data: {
+  modelValue: {
     type: Array<any>,
     default: () => [],
   },
 });
 
-const getItems = () => props.data;
-const items = ref(getItems());
+const emits = defineEmits(['update:modelValue', 'onChange']);
 
-const state = reactive({
-  ...props,
-  target: 0,
-});
+const items = ref<any>([]);
 
-const onDrag = (event, idx) => {
-  state.target = idx;
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    items.value = newVal;
+  },
+  {
+    deep: true,
+    immediate: true,
+  }
+);
+
+const dragIndex = ref(0);
+
+const onDrag = (idx: number) => {
+  dragIndex.value = idx;
 };
 
-const onDrop = (event, idx) => {
-  items.value.splice(idx, 0, items.value.splice(state.target, 1)[0]);
+const onDrop = (idx: number) => {
+  items.value.splice(idx, 0, items.value.splice(dragIndex.value, 1)[0]);
+  emits('update:modelValue', items.value);
+};
+
+const uploadFiles = (event, type) => {
+  emits('onChange', event, type);
 };
 </script>
 

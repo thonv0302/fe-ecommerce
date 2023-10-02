@@ -42,8 +42,6 @@ const emits = defineEmits(['activeTab']);
 const comp = ref();
 
 const activeTab = (idx: number) => {
-  console.log('comp: ', comp);
-
   const tabActive = props.tabs.find((tab) => tab.current);
   if (tabActive) {
     tabActive.current = false;

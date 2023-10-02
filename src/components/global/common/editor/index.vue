@@ -46,7 +46,11 @@ onMounted(() => {
   quill.value = new Quill('#editor', options);
 
   quill.value.on('text-change', () => {
-    emit('update:modelValue', quill.value.root.innerHTML);
+    let data = quill.value.root.innerHTML;
+    if (quill.value.root.innerHTML === '<p><br></p>') {
+      data = '';
+    }
+    emit('update:modelValue', data);
   });
 
   quill.value.root.innerHTML = props.modelValue;
