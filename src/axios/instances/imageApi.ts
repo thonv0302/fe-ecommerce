@@ -36,6 +36,35 @@ export default class ImageApi extends AxiosBase {
     return metadata;
   }
 
+  public async uploadImages(files: any) {
+
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+      formData.append('photos', files[i]);
+    }
+    formData.append('belong', 'product');
+    let metadata = {};
+    try {
+      const { status, data } = await this.axiosInstance.post<any>(
+        this.prefixURL + 'files',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      if (data && data.metadata && status === StatusCode.CREATED) {
+        metadata = data.metadata;
+      }
+    } catch (error) {
+      throw error;
+    }
+
+    return metadata;
+  }
+
   public async getImages({ belong, next_cursor, previous_cursor }: any) {
     let metadata = {};
     try {
