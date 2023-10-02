@@ -11,7 +11,7 @@
       </RouterLink>
       <h1>Add product</h1>
     </div>
-    <VeeForm v-slot="{ errors }">
+    <VeeForm v-slot="{ errors }" ref="form">
       <div class="grid grid-cols-1 md:grid-cols-3 md:gap-x-4">
         <div class="col-span-2">
           <div class="bg-white shadow-sm border rounded-md p-3">
@@ -56,8 +56,12 @@
                     },
                   ]"
                 >
-                  <Editor v-model="product.description" />
+                  <Editor v-model="product.description" @onBlur="triggerBlur" />
                 </div>
+                <ErrorMessage
+                  name="description"
+                  class="mt-2 text-sm text-red-600"
+                />
               </VeeField>
             </div>
           </div>
@@ -381,9 +385,11 @@
 import { ArrowSmallLeftIcon } from '@heroicons/vue/24/solid';
 import { ROUTE_PRODUCT } from '@/constants/routers';
 import Editor from '@/components/global/common/editor/index.vue';
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import DnDImage from '@/components/global/common/dnd/index.vue';
 import { useImageStore } from '@/stores/imageStore.ts';
+
+const form = ref(null);
 
 const product = reactive<{
   media: Array<any>;
@@ -428,6 +434,13 @@ const uploadFiles = async (event: any, type = 'new') => {
 };
 
 const imageStore = useImageStore();
+
+const triggerBlur = () => {
+  if (!product.description) {
+    form.value.setFieldError('description', 'This field is required');
+  }
+  form.value.setFieldTouched('description', true);
+};
 </script>
 
 <style scoped></style>

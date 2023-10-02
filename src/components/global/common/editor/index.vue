@@ -19,7 +19,7 @@ import { onMounted, ref, onUnmounted } from 'vue';
 import ManageImageModal from '@/components/global/admin/product/modal/ManageImage.vue';
 
 const props = defineProps(['modelValue']);
-const emit = defineEmits(['update:modelValue', 'handleImage']);
+const emit = defineEmits(['update:modelValue', 'handleImage', 'onBlur']);
 
 const quill = ref();
 
@@ -46,13 +46,16 @@ onMounted(() => {
   quill.value = new Quill('#editor', options);
 
   quill.value.on('text-change', () => {
-    let data = quill.value.root.innerHTML;
-    if (quill.value.root.innerHTML === '<p><br></p>') {
-      data = '';
+    let data = '';
+    if (quill.value.getText().trim()) {
+      data = quill.value.root.innerHTML;
     }
     emit('update:modelValue', data);
   });
 
+  quill.value.root.addEventListener('blur', () => {
+    emit('onBlur');
+  });
   quill.value.root.innerHTML = props.modelValue;
 
   var toolbar = quill.value.getModule('toolbar');
