@@ -1,14 +1,17 @@
 <template>
   <div>
     <div class="flex items-center mb-4">
-      <RouterLink :to="{
-        name: ROUTE_PRODUCT.list.name,
-      }" class="p-2">
+      <RouterLink
+        :to="{
+          name: ROUTE_PRODUCT.list.name,
+        }"
+        class="p-2"
+      >
         <ArrowSmallLeftIcon class="w-4 h-4" />
       </RouterLink>
       <h1>Add product</h1>
     </div>
-    <VeeForm v-slot="{ errors }" ref="form">
+    <VeeForm v-slot="{ errors }" ref="form" @submit="onSubmit">
       <div class="grid grid-cols-1 md:grid-cols-3 md:gap-x-4">
         <div class="col-span-2">
           <div class="bg-white shadow-sm border rounded-md p-3">
@@ -17,13 +20,20 @@
                 Title
               </label>
               <div class="mt-1">
-                <VeeField id="title" name="title" type="text" rules="required" v-model="product.title" :class="[
-                  'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
-                  {
-                    'ring-red-500 border-red-500  focus:ring-red-500 focus:border-red-500':
-                      errors.title,
-                  },
-                ]" />
+                <VeeField
+                  id="title"
+                  name="title"
+                  type="text"
+                  rules="required"
+                  v-model="product.title"
+                  :class="[
+                    'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+                    {
+                      'ring-red-500 border-red-500  focus:ring-red-500 focus:border-red-500':
+                        errors.title,
+                    },
+                  ]"
+                />
                 <ErrorMessage name="title" class="mt-2 text-sm text-red-600" />
               </div>
             </div>
@@ -31,10 +41,11 @@
               <label for="description" class="block text-sm text-gray-70">
                 Description
               </label>
-              <!-- <VeeField
+              <VeeField
                 id="description"
                 name="description"
-                v-model="product.description"
+                :value="product.description"
+                v-slot="{ field }"
                 rules="required"
               >
                 <div
@@ -46,48 +57,60 @@
                     },
                   ]"
                 >
-                  <Editor v-model="product.description" @onBlur="triggerBlur" />
+                  <Editor
+                    v-bind="field"
+                    v-model="product.description"
+                    @onBlur="triggerBlur"
+                  />
                 </div>
                 <ErrorMessage
                   name="description"
                   class="mt-2 text-sm text-red-600"
                 />
-              </VeeField> -->
-              <VeeField id="description" name="description" :value="product.description" v-slot="{ field }"
-                rules="required">
-                <div :class="[
-                  'mt-1 rounded-md border shadow-sm overflow-hidden',
-                  {
-                    'border-gray-300': !errors.description,
-                    'border-red-500': errors.description,
-                  },
-                ]">
-                  <Editor v-bind="field" v-model="product.description" @onBlur="triggerBlur" />
-                </div>
-                <ErrorMessage name="description" class="mt-2 text-sm text-red-600" />
               </VeeField>
             </div>
           </div>
           <div class="bg-white shadow-sm border rounded-md p-3 mt-3">
             <div class="sm:col-span-6">
-              <label for="cover-photo" class="block text-sm font-medium text-gray-700">
+              <label
+                for="cover-photo"
+                class="block text-sm font-medium text-gray-700"
+              >
                 Media
               </label>
-              <div v-if="product.media.length === 0"
-                class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+              <div
+                v-if="product.media.length === 0"
+                class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"
+              >
                 <div class="space-y-1 text-center">
-                  <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48"
-                    aria-hidden="true">
+                  <svg
+                    class="mx-auto h-12 w-12 text-gray-400"
+                    stroke="currentColor"
+                    fill="none"
+                    viewBox="0 0 48 48"
+                    aria-hidden="true"
+                  >
                     <path
                       d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
                   </svg>
                   <div class="flex text-sm text-gray-600">
-                    <label for="file-upload"
-                      class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                    <label
+                      for="file-upload"
+                      class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                    >
                       <span>Upload a file</span>
-                      <input id="file-upload" name="file-upload" type="file" class="sr-only" multiple
-                        @change="uploadFiles($event, 'new')" />
+                      <input
+                        id="file-upload"
+                        name="file-upload"
+                        type="file"
+                        class="sr-only"
+                        multiple
+                        @change="uploadFiles($event, 'new')"
+                      />
                     </label>
                     <p class="pl-1">or drag and drop</p>
                   </div>
@@ -97,7 +120,10 @@
                 </div>
               </div>
               <div class="mt-3" v-else>
-                <DnDImage v-model="product.media" @onChange="(event, type) => uploadFiles(event, type)" />
+                <DnDImage
+                  v-model="product.media"
+                  @onChange="(event, type) => uploadFiles(event, type)"
+                />
               </div>
             </div>
           </div>
@@ -109,10 +135,32 @@
                   Price
                 </label>
                 <div class="mt-1">
-                  <VeeField id="password" name="password" type="password" rules="required" :class="[
-                    'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
-                  ]" />
-                  <ErrorMessage name="password" class="mt-2 text-sm text-red-600" />
+                  <div class="relative">
+                    <div
+                      class="absolute inset-y-0 left-0 pl-2 flex items-center text-sm text-gray-700"
+                    >
+                      $
+                    </div>
+                    <VeeField
+                      id="price"
+                      name="Price"
+                      type="number"
+                      rules="min_value:1"
+                      v-model="product.price"
+                      placeholder="0"
+                      :class="[
+                        'block w-full pl-5 pr-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+                        {
+                          'ring-red-500 border-red-500  focus:ring-red-500 focus:border-red-500':
+                            errors.Price,
+                        },
+                      ]"
+                    />
+                  </div>
+                  <ErrorMessage
+                    name="Price"
+                    class="mt-2 text-sm text-red-600"
+                  />
                 </div>
               </div>
               <div class="space-y-1 flex-1 mt-2 md:mt-0">
@@ -120,10 +168,32 @@
                   Compare-at price
                 </label>
                 <div class="mt-1">
-                  <VeeField id="password" name="password" type="password" rules="required" :class="[
-                    'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
-                  ]" />
-                  <ErrorMessage name="password" class="mt-2 text-sm text-red-600" />
+                  <div class="relative">
+                    <div
+                      class="absolute inset-y-0 left-0 pl-2 flex items-center text-sm text-gray-700"
+                    >
+                      $
+                    </div>
+                    <VeeField
+                      id="price"
+                      name="Compare at price"
+                      type="number"
+                      rules="min_value:1"
+                      v-model="product.compareAtPrice"
+                      placeholder="0"
+                      :class="[
+                        'block w-full pl-5 pr-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+                        {
+                          'ring-red-500 border-red-500  focus:ring-red-500 focus:border-red-500':
+                            errors['Compare at price'],
+                        },
+                      ]"
+                    />
+                  </div>
+                  <ErrorMessage
+                    name="Compare at price"
+                    class="mt-2 text-sm text-red-600"
+                  />
                 </div>
               </div>
               <div class="flex-1 hidden md:block"></div>
@@ -134,32 +204,66 @@
                   Cost per item
                 </label>
                 <div class="mt-1">
-                  <VeeField id="password" name="password" type="password" rules="required" :class="[
-                    'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
-                  ]" />
-                  <ErrorMessage name="password" class="mt-2 text-sm text-red-600" />
+                  <div class="relative">
+                    <div
+                      class="absolute inset-y-0 left-0 pl-2 flex items-center text-sm text-gray-700"
+                    >
+                      $
+                    </div>
+                    <VeeField
+                      id="price"
+                      name="Cost per item"
+                      type="number"
+                      rules="min_value:1"
+                      v-model="product.costPerItem"
+                      placeholder="0"
+                      :class="[
+                        'block w-full pl-5 pr-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+                        {
+                          'ring-red-500 border-red-500  focus:ring-red-500 focus:border-red-500':
+                            errors['Cost per item'],
+                        },
+                      ]"
+                    />
+                  </div>
+                  <ErrorMessage
+                    name="Cost per item"
+                    class="mt-2 text-sm text-red-600"
+                  />
                 </div>
               </div>
               <div class="space-y-1 flex-1 mt-2 md:mt-0">
-                <label for="password" class="block text-sm text-gray-700">
+                <label for="profit" class="block text-sm text-gray-700">
                   Profit
                 </label>
                 <div class="mt-1">
-                  <VeeField id="password" name="password" type="password" rules="required" :class="[
-                    'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
-                  ]" />
-                  <ErrorMessage name="password" class="mt-2 text-sm text-red-600" />
+                  <VeeField
+                    :disabled="true"
+                    id="profit"
+                    name="profit"
+                    type="text"
+                    v-model="product.profit"
+                    :class="[
+                      'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+                    ]"
+                  />
                 </div>
               </div>
               <div class="space-y-1 flex-1 mt-2 md:mt-0">
-                <label for="password" class="block text-sm text-gray-700">
+                <label for="margin" class="block text-sm text-gray-700">
                   Margin
                 </label>
                 <div class="mt-1">
-                  <VeeField id="password" name="password" type="password" rules="required" :class="[
-                    'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
-                  ]" />
-                  <ErrorMessage name="password" class="mt-2 text-sm text-red-600" />
+                  <VeeField
+                    :disabled="true"
+                    id="margin"
+                    name="margin"
+                    type="text"
+                    v-model="product.margin"
+                    :class="[
+                      'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+                    ]"
+                  />
                 </div>
               </div>
             </div>
@@ -168,25 +272,48 @@
             <h6 class="text-sm font-semibold text-gray-700 mb-3">Shipping</h6>
             <div class="flex flex-col md:flex-row md:gap-x-4">
               <div class="space-y-1 flex-1">
-                <label for="password" class="block text-sm text-gray-700">
+                <label for="sku" class="block text-sm text-gray-700">
                   SKU (Stock Keeping Unit)
                 </label>
                 <div class="mt-1">
-                  <VeeField id="password" name="password" type="password" rules="required" :class="[
-                    'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
-                  ]" />
-                  <ErrorMessage name="password" class="mt-2 text-sm text-red-600" />
+                  <VeeField
+                    name="sku"
+                    type="text"
+                    rules="required"
+                    :class="[
+                      'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+                      {
+                        'ring-red-500 border-red-500  focus:ring-red-500 focus:border-red-500':
+                          errors.sku,
+                      },
+                    ]"
+                  />
+                  <ErrorMessage name="sku" class="mt-2 text-sm text-red-600" />
                 </div>
               </div>
               <div class="space-y-1 flex-1 mt-2 md:mt-0">
-                <label for="password" class="block text-sm text-gray-700">
+                <label for="quantity" class="block text-sm text-gray-700">
                   Quantity
                 </label>
                 <div class="mt-1">
-                  <VeeField id="password" name="password" type="password" rules="required" :class="[
-                    'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
-                  ]" />
-                  <ErrorMessage name="password" class="mt-2 text-sm text-red-600" />
+                  <VeeField
+                    id="quantity"
+                    name="quantity"
+                    type="number"
+                    rules="min_value:0"
+                    v-model="product.quantity"
+                    :class="[
+                      'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+                      {
+                        'ring-red-500 border-red-500  focus:ring-red-500 focus:border-red-500':
+                          errors.quantity,
+                      },
+                    ]"
+                  />
+                  <ErrorMessage
+                    name="quantity"
+                    class="mt-2 text-sm text-red-600"
+                  />
                 </div>
               </div>
             </div>
@@ -195,12 +322,22 @@
         <div class="mt-3 md:mt-0">
           <div class="bg-white shadow-sm border rounded-md p-3">
             <div>
-              <label for="location" class="block text-sm font-semibold text-gray-700">Status</label>
-              <select id="location" name="location"
-                class="mt-1 block w-full pl-3 pr-10 py-1 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                <option>Publish</option>
-                <option>Draft</option>
-              </select>
+              <label
+                for="status"
+                class="block text-sm font-semibold text-gray-700"
+                >Status</label
+              >
+              <VeeField
+                as="select"
+                id="status"
+                name="status"
+                v-model="product.isPublished"
+                class="mt-1 block w-full pl-3 pr-10 py-1 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+              >
+                <option :value="true">Publish</option>
+                <option :value="false">Draft</option>
+              </VeeField>
+              <ErrorMessage name="status" class="mt-2 text-sm text-red-600" />
             </div>
           </div>
           <div class="bg-white shadow-sm border rounded-md p-3 mt-3">
@@ -208,43 +345,91 @@
               Product organization
             </h6>
             <div>
-              <label for="product-category" class="block text-sm text-gray-700">Product category</label>
+              <label for="product-category" class="block text-sm text-gray-700"
+                >Product category</label
+              >
               <div class="mt-1">
-                <VeeField id="product-category" name="product-category" type="text" :class="[
-                  'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
-                ]" />
-                <ErrorMessage name="product-category" class="mt-2 text-sm text-red-600" />
+                <VeeField
+                  id="product-category"
+                  name="product-category"
+                  type="text"
+                  :class="[
+                    'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+                  ]"
+                />
+                <ErrorMessage
+                  name="product-category"
+                  class="mt-2 text-sm text-red-600"
+                />
               </div>
             </div>
             <div class="mt-2">
-              <label for="product-category" class="block text-sm text-gray-700">Product type</label>
+              <label for="product-category" class="block text-sm text-gray-700"
+                >Product type</label
+              >
               <div class="mt-1">
-                <VeeField id="product-category" name="product-category" type="text" :class="[
-                  'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
-                ]" />
-                <ErrorMessage name="product-category" class="mt-2 text-sm text-red-600" />
+                <VeeField
+                  id="product-category"
+                  name="product-category"
+                  type="text"
+                  :class="[
+                    'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+                  ]"
+                />
+                <ErrorMessage
+                  name="product-category"
+                  class="mt-2 text-sm text-red-600"
+                />
               </div>
             </div>
             <div class="mt-2">
-              <label for="product-category" class="block text-sm text-gray-700">Collection</label>
+              <label for="product-category" class="block text-sm text-gray-700"
+                >Collection</label
+              >
               <div class="mt-1">
-                <VeeField id="product-category" name="product-category" type="text" :class="[
-                  'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
-                ]" />
-                <ErrorMessage name="product-category" class="mt-2 text-sm text-red-600" />
+                <VeeField
+                  id="product-category"
+                  name="product-category"
+                  type="text"
+                  :class="[
+                    'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+                  ]"
+                />
+                <ErrorMessage
+                  name="product-category"
+                  class="mt-2 text-sm text-red-600"
+                />
               </div>
             </div>
             <div class="mt-2">
-              <label for="product-category" class="block text-sm text-gray-700">Tag</label>
+              <label for="product-category" class="block text-sm text-gray-700"
+                >Tag</label
+              >
               <div class="mt-1">
-                <VeeField id="product-category" name="product-category" type="text" :class="[
-                  'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
-                ]" />
-                <ErrorMessage name="product-category" class="mt-2 text-sm text-red-600" />
+                <VeeField
+                  id="product-category"
+                  name="product-category"
+                  type="text"
+                  :class="[
+                    'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+                  ]"
+                />
+                <ErrorMessage
+                  name="product-category"
+                  class="mt-2 text-sm text-red-600"
+                />
               </div>
             </div>
           </div>
         </div>
+      </div>
+      <div class="text-end mt-3">
+        <button
+          type="submit"
+          class="px-2 py-1 border text-sm transition-all rounded-md text-white bg-green-600 hover:bg-green-700"
+        >
+          Save
+        </button>
       </div>
     </VeeForm>
   </div>
@@ -268,7 +453,13 @@ const product = reactive<{
   productCategory: String;
   collection: Array<any>;
   tag: Array<any>;
-  isPublished: Boolean
+  isPublished: Boolean;
+  price: Number;
+  compareAtPrice: Number;
+  costPerItem: Number;
+  profit: String;
+  margin: String;
+  quantity: Number;
 }>({
   title: '',
   description: '',
@@ -277,7 +468,13 @@ const product = reactive<{
   productCategory: '',
   collection: [],
   tag: [],
-  isPublished: true
+  isPublished: false,
+  price: 0,
+  compareAtPrice: 0,
+  costPerItem: 0,
+  profit: '--',
+  margin: '--',
+  quantity: 0,
 });
 
 const uploadFiles = async (event: any, type = 'new') => {
@@ -311,6 +508,10 @@ const triggerBlur = () => {
     form.value.setFieldError('description', 'This field is required');
   }
   form.value.setFieldTouched('description', true);
+};
+
+const onSubmit = () => {
+  console.log('vao day');
 };
 </script>
 
