@@ -22,11 +22,6 @@
     <div
       class="aspect-square border bg-white rounded-sm flex flex-col justify-center items-center"
     >
-      <!-- <button
-        class="block px-3 py-2 border text-sm bg-gray-50 transition-all hover:bg-gray-100 rounded-md"
-      >
-        Add
-      </button> -->
       <button
         class="relative px-3 py-2 border text-sm bg-gray-50 transition-all hover:bg-gray-100 rounded-md me-2"
       >
@@ -77,7 +72,7 @@ const onDrop = (idx: number) => {
   emits('update:modelValue', items.value);
 };
 
-const uploadFiles = (event, type) => {
+const uploadFiles = (event: Event, type: String) => {
   emits('onChange', event, type);
 };
 </script>
