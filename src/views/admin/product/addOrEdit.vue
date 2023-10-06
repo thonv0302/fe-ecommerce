@@ -11,7 +11,7 @@
       </RouterLink>
       <h1>Add product</h1>
     </div>
-    <VeeForm v-slot="{ errors }" ref="form" @submit="onSubmit">
+    <VeeForm v-slot="{ errors }" ref="form" class="mb-3" @submit="onSubmit">
       <div class="grid grid-cols-1 md:grid-cols-3 md:gap-x-4">
         <div class="col-span-2">
           <div class="bg-white shadow-sm border rounded-md p-3">
@@ -317,6 +317,17 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <div class="bg-white shadow-sm border rounded-md p-3 mt-3">
+            <h6 class="text-sm font-semibold text-gray-700 mb-3">Variants</h6>
+            <hr class="-mx-3" />
+
+            <a
+              role="button"
+              class="pt-3 block text-sm transition-all text-blue-600 hover:underline"
+              >+ Add options like size or color</a
+            >
           </div>
         </div>
         <div class="mt-3 md:mt-0">
