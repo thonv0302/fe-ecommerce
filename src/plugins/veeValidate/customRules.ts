@@ -43,6 +43,8 @@ export function defineAddressRules() {
   });
 
   defineRule('confirmed', (value: any, [target]: any[]) => {
+    console.log('target: ', target);
+
     if (value === target) {
       return true;
     }

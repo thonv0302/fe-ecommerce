@@ -1,5 +1,5 @@
 <template>
-  <VeeForm v-slot="{ errors }">
+  <VeeForm v-slot="{ errors }" ref="form">
     <draggable
       item-key="id"
       handle=".drag-handle"
@@ -23,8 +23,18 @@
             <span class="text-sm ms-10"> Option name</span>
             <div class="flex">
               <div
-                class="drag-handle flex cursor-move w-8 h-8 justify-center items-center me-2"
-                @mousedown="dragging(option, true)"
+                :class="[
+                  'flex cursor-move w-8 h-8 justify-center items-center me-2',
+                  {
+                    'drag-handle': isDragableIcon(option),
+                    'text-slate-400': !isDragableIcon(option),
+                  },
+                ]"
+                @mousedown="
+                  if (isDragableIcon(option)) {
+                    dragging(option, true);
+                  }
+                "
               >
                 <span>⠋</span>
               </div>
@@ -100,7 +110,7 @@
                       ]"
                     />
                     <ErrorMessage
-                      :name="`value${value.id}`"
+                      :name="`option${option.id}value${value.id}`"
                       class="mt-2 text-sm text-red-600"
                     />
                   </div>
@@ -118,17 +128,48 @@
             v-if="!option.isDraging && !option.isDone"
             class="py-1 ps-14 pe-10"
           >
-            <input
+            <!-- <input
               type="text"
-              @keyup.enter="addValue($event, option)"
+              @keyup.enter="addValue(option)"
+              v-model="option.newValue"
               :class="[
                 'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none text-sm',
               ]"
+            /> -->
+            <!-- <div
+              v-if="
+                option.values.length == 0 &&
+                !option.newValue &&
+                option.isValidateDone
+              "
+              class="text-sm text-red-500 mt-1"
+            >
+              Option value is required.
+            </div> -->
+            <VeeField
+              type="text"
+              @keyup.enter="addValue(option)"
+              v-model="option.newValue"
+              :rules="option.values.length === 0 ? 'required' : ''"
+              :name="`option${option.id}newValue`"
+              :class="[
+                'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none text-sm',
+                {
+                  'ring-red-500 border-red-500':
+                    errors[`option${option.id}newValue`],
+                },
+              ]"
             />
+            <div>
+              <ErrorMessage
+                :name="`option${option.id}newValue`"
+                class="mt-2 text-sm text-red-600"
+              />
+            </div>
             <a
               role="button"
               class="my-2 inline-block shadow text-sm py-1 px-2 border transition-all hover:bg-gray-100 rounded-md me-2"
-              @click="option.isDone = true"
+              @click="doneOption(option)"
               type="submit"
             >
               Done
@@ -174,11 +215,13 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import draggable from 'vuedraggable';
 import { TrashIcon } from '@heroicons/vue/24/solid';
 
 import { nanoid } from 'nanoid';
+
+const form = ref<any>(null);
 
 const removeOption = (idx: number) => {
   options.value.splice(idx, 1);
@@ -188,13 +231,57 @@ const removeValue = (optionIdx: number, valueIdx: number) => {
   options.value[optionIdx].values.splice(valueIdx, 1);
 };
 
-const addValue = (e: any, option: any) => {
-  e.stopPropagation();
-  option.values.push({
-    title: e.target.value,
-    id: nanoid(),
-  });
-  e.target.value = '';
+const isDragableIcon = computed(() => (option: any) => {
+  let isDisabled = !!option.title;
+  for (const value of option.values) {
+    isDisabled &&= !!value.title;
+  }
+  return isDisabled;
+});
+
+const doneOption = async (option: any) => {
+  const validateInputNames = [
+    `option${option.id}`,
+    ...option.values.map((value: any) => `option${option.id}value${value.id}`),
+  ];
+
+  let isValid: boolean = true;
+  for (const validate of validateInputNames) {
+    const { valid } = await form.value.validateField(validate);
+
+    isValid &&= valid;
+  }
+  if (!isValid) return;
+
+  if (option.values.length === 0 && !option.newValue) {
+    option.isDone = false;
+    option.isValidateDone = false;
+  }
+  if (option.newValue) {
+    option.values.push({
+      title: option.newValue,
+      id: nanoid(),
+    });
+    option.newValue = '';
+    option.isDone = true;
+    option.isValidateDone = false;
+  }
+  if (option.values.length > 0 && !option.newValue) {
+    option.isDone = true;
+    option.isValidateDone = false;
+  }
+
+  option.isValidateDone = true;
+};
+
+const addValue = (option: any) => {
+  if (option.newValue) {
+    option.values.push({
+      title: option.newValue,
+      id: nanoid(),
+    });
+    option.newValue = '';
+  }
 };
 
 const addOption = () => {
@@ -202,8 +289,10 @@ const addOption = () => {
     title: '',
     id: nanoid(),
     values: [],
+    newValue: '',
     isDone: false,
     isDraging: false,
+    isValidateDone: false,
   });
 };
 
@@ -214,32 +303,8 @@ const dragging = (option: any, status: boolean) => {
 const onChange = () => {};
 
 const onEnd = (evt: any) => {
-  // options.value[evt.newIndex].isDone = false;
   options.value[evt.newIndex].isDraging = false;
 };
-
-// const optionName = ref([
-//   {
-//     id: 1,
-//     title: 'Size',
-//     slug: 'size',
-//   },
-//   {
-//     id: 2,
-//     title: 'Color',
-//     slug: 'color',
-//   },
-//   {
-//     id: 3,
-//     title: 'Material',
-//     slug: 'material',
-//   },
-//   {
-//     id: 4,
-//     title: 'Style',
-//     slug: 'style',
-//   },
-// ]);
 
 const options = ref([
   {
@@ -257,6 +322,8 @@ const options = ref([
     ],
     isDone: false,
     isDraging: false,
+    newValue: '',
+    isValidateDone: false,
   },
   {
     title: 'Color',
@@ -264,6 +331,8 @@ const options = ref([
     values: [],
     isDone: false,
     isDraging: false,
+    newValue: '',
+    isValidateDone: false,
   },
   {
     title: 'Style',
@@ -271,8 +340,20 @@ const options = ref([
     values: [],
     isDone: false,
     isDraging: false,
+    newValue: '',
+    isValidateDone: false,
   },
 ]);
+
+watch(
+  () => options.value,
+  (newVal) => {
+    console.log('newVal: ', newVal);
+  },
+  {
+    deep: true,
+  }
+);
 </script>
 
 <style>
