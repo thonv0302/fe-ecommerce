@@ -23,18 +23,19 @@
             <span class="text-sm ms-10"> Option name</span>
             <div class="flex">
               <div
-                :class="[
-                  'flex cursor-move w-8 h-8 justify-center items-center me-2',
-                  {
-                    'drag-handle': isDragableIcon(option),
-                    'text-slate-400': !isDragableIcon(option),
-                  },
-                ]"
-                @mousedown="
-                  if (isDragableIcon(option)) {
-                    dragging(option, true);
-                  }
+                v-if="
+                  isDragableIcon({ title: option.title, values: option.values })
                 "
+                :class="[
+                  'flex cursor-move w-8 h-8 justify-center items-center me-2 drag-handle text-slate-900',
+                ]"
+                @mousedown="dragging(option, true)"
+              >
+                <span>⠋</span>
+              </div>
+              <div
+                v-else
+                class="flex cursor-move w-8 h-8 justify-center items-center me-2 text-slate-400"
               >
                 <span>⠋</span>
               </div>
@@ -45,6 +46,7 @@
                   type="text"
                   rules="required"
                   v-model="option.title"
+                  @focusout="validateFormField"
                   :class="[
                     'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none text-sm',
                     {
@@ -90,7 +92,7 @@
                   v-if="!option.isDraging && !option.isDone"
                 >
                   <div
-                    class="drag-handle cursor-move w-8 h-8 justify-center items-center ms-6"
+                    class="drag-handle cursor-move w-8 h-8 justify-center items-center ms-6 text-slate-900"
                   >
                     <span>⠋</span>
                   </div>
@@ -121,31 +123,14 @@
                   >
                     <TrashIcon class="w-4 h-4 text-slate-500" />
                   </a>
-                </div></div
-            ></template>
+                </div>
+              </div>
+            </template>
           </draggable>
           <div
             v-if="!option.isDraging && !option.isDone"
             class="py-1 ps-14 pe-10"
           >
-            <!-- <input
-              type="text"
-              @keyup.enter="addValue(option)"
-              v-model="option.newValue"
-              :class="[
-                'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none text-sm',
-              ]"
-            /> -->
-            <!-- <div
-              v-if="
-                option.values.length == 0 &&
-                !option.newValue &&
-                option.isValidateDone
-              "
-              class="text-sm text-red-500 mt-1"
-            >
-              Option value is required.
-            </div> -->
             <VeeField
               type="text"
               @keyup.enter="addValue(option)"
@@ -236,6 +221,9 @@ const isDragableIcon = computed(() => (option: any) => {
   for (const value of option.values) {
     isDisabled &&= !!value.title;
   }
+  if (option.values.length === 0) {
+    isDisabled &&= false;
+  }
   return isDisabled;
 });
 
@@ -250,6 +238,9 @@ const doneOption = async (option: any) => {
     const { valid } = await form.value.validateField(validate);
 
     isValid &&= valid;
+  }
+  if (option.values.length === 0) {
+    await form.value.validateField(`option${option.id}newValue`);
   }
   if (!isValid) return;
 
@@ -293,6 +284,7 @@ const addOption = () => {
     isDone: false,
     isDraging: false,
     isValidateDone: false,
+    uniqueValues: [],
   });
 };
 
@@ -324,6 +316,7 @@ const options = ref([
     isDraging: false,
     newValue: '',
     isValidateDone: false,
+    uniqueValues: [],
   },
   {
     title: 'Color',
@@ -333,6 +326,7 @@ const options = ref([
     isDraging: false,
     newValue: '',
     isValidateDone: false,
+    uniqueValues: [],
   },
   {
     title: 'Style',
@@ -342,18 +336,76 @@ const options = ref([
     isDraging: false,
     newValue: '',
     isValidateDone: false,
+    uniqueValues: [],
   },
 ]);
+
+const validateForm = ref();
 
 watch(
   () => options.value,
   (newVal) => {
-    console.log('newVal: ', newVal);
+    validateForm.value = newVal.reduce((obj: any, ele) => {
+      if (ele.title && !obj[`${ele.title}`]) {
+        obj[`${ele.title}`] = {
+          optionId: ['option' + ele.id],
+          errMess: ele.title,
+        };
+        if (ele.values.length > 0) {
+          ele.values.forEach((value) => {
+            if (value.title && !obj[`${ele.title}`][`${value.title}`]) {
+              obj[`${ele.title}`][`${value.title}`] = {
+                valueId: ['option' + ele.id + 'value' + value.id],
+                errMess: value.title,
+              };
+            } else if (obj[`${ele.title}`][`${value.title}`]) {
+              obj[`${ele.title}`][`${value.title}`].valueId.push(
+                'option' + ele.id + 'value' + value.id
+              );
+            }
+          });
+        }
+        if (ele.newValue && !obj[`${ele.title}`][`${ele.newValue}`]) {
+          obj[`${ele.title}`][`${ele.newValue}`] = {
+            valueId: ['option' + ele.id + 'newValue'],
+            errMess: ele.newValue,
+          };
+        } else if (obj[`${ele.title}`][`${ele.newValue}`]) {
+          obj[`${ele.title}`][`${ele.newValue}`].valueId.push(
+            'option' + ele.id + 'newValue'
+          );
+        }
+      } else if (obj[`${ele.title}`]) {
+        obj[`${ele.title}`].optionId.push('option' + ele.id);
+      }
+
+      return obj;
+    }, {});
+    console.log('validateForm.value: ', validateForm.value);
+
+    validateFormField();
   },
   {
     deep: true,
   }
 );
+
+const validateFormField = () => {
+  for (const obj in validateForm.value) {
+    if (validateForm.value[obj].optionId.length > 1) {
+      for (const id of validateForm.value[obj].optionId) {
+        form.value.setFieldError(
+          id,
+          'The option name has the same value ' +
+            validateForm.value[obj].errMess +
+            ' with others.'
+        );
+      }
+    } else {
+      form.value.setFieldError(validateForm.value[obj].optionId[0], '');
+    }
+  }
+};
 </script>
 
 <style>
