@@ -24,7 +24,11 @@
             <div class="flex">
               <div
                 v-if="
-                  isDragableIcon({ title: option.title, values: option.values })
+                  isDragableIcon({
+                    title: option.title,
+                    values: option.values,
+                    id: option.id,
+                  })
                 "
                 :class="[
                   'flex cursor-move w-8 h-8 justify-center items-center me-2 drag-handle text-slate-900',
@@ -102,6 +106,7 @@
                       :id="`option${option.id}value${value.id}`"
                       type="text"
                       rules="required"
+                      @focusout="validateFormField"
                       v-model="value.title"
                       :class="[
                         'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none text-sm',
@@ -137,6 +142,7 @@
               v-model="option.newValue"
               :rules="option.values.length === 0 ? 'required' : ''"
               :name="`option${option.id}newValue`"
+              @focusout="validateFormField"
               :class="[
                 'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none text-sm',
                 {
@@ -216,18 +222,15 @@ const removeValue = (optionIdx: number, valueIdx: number) => {
   options.value[optionIdx].values.splice(valueIdx, 1);
 };
 
-const isDragableIcon = computed(() => (option: any) => {
-  let isDisabled = !!option.title;
-  for (const value of option.values) {
-    isDisabled &&= !!value.title;
-  }
-  if (option.values.length === 0) {
-    isDisabled &&= false;
-  }
-  return isDisabled;
-});
-
 const doneOption = async (option: any) => {
+  const errors = form.value.getErrors() || {};
+  let isError = false;
+  for (const errorKey in errors) {
+    isError ||= errorKey.includes(option.id);
+  }
+
+  if (isError) return;
+
   const validateInputNames = [
     `option${option.id}`,
     ...option.values.map((value: any) => `option${option.id}value${value.id}`),
@@ -312,7 +315,7 @@ const options = ref([
         id: nanoid(),
       },
     ],
-    isDone: false,
+    isDone: true,
     isDraging: false,
     newValue: '',
     isValidateDone: false,
@@ -350,28 +353,32 @@ watch(
         obj[`${ele.title}`] = {
           optionId: ['option' + ele.id],
           errMess: ele.title,
+          values: {},
         };
         if (ele.values.length > 0) {
           ele.values.forEach((value) => {
-            if (value.title && !obj[`${ele.title}`][`${value.title}`]) {
-              obj[`${ele.title}`][`${value.title}`] = {
+            if (
+              value.title &&
+              !obj[`${ele.title}`]['values'][`${value.title}`]
+            ) {
+              obj[`${ele.title}`]['values'][`${value.title}`] = {
                 valueId: ['option' + ele.id + 'value' + value.id],
                 errMess: value.title,
               };
-            } else if (obj[`${ele.title}`][`${value.title}`]) {
-              obj[`${ele.title}`][`${value.title}`].valueId.push(
+            } else if (obj[`${ele.title}`]['values'][`${value.title}`]) {
+              obj[`${ele.title}`]['values'][`${value.title}`].valueId.push(
                 'option' + ele.id + 'value' + value.id
               );
             }
           });
         }
-        if (ele.newValue && !obj[`${ele.title}`][`${ele.newValue}`]) {
-          obj[`${ele.title}`][`${ele.newValue}`] = {
+        if (ele.newValue && !obj[`${ele.title}`]['values'][`${ele.newValue}`]) {
+          obj[`${ele.title}`]['values'][`${ele.newValue}`] = {
             valueId: ['option' + ele.id + 'newValue'],
             errMess: ele.newValue,
           };
-        } else if (obj[`${ele.title}`][`${ele.newValue}`]) {
-          obj[`${ele.title}`][`${ele.newValue}`].valueId.push(
+        } else if (obj[`${ele.title}`]['values'][`${ele.newValue}`]) {
+          obj[`${ele.title}`]['values'][`${ele.newValue}`].valueId.push(
             'option' + ele.id + 'newValue'
           );
         }
@@ -381,7 +388,6 @@ watch(
 
       return obj;
     }, {});
-    console.log('validateForm.value: ', validateForm.value);
 
     validateFormField();
   },
@@ -404,8 +410,50 @@ const validateFormField = () => {
     } else {
       form.value.setFieldError(validateForm.value[obj].optionId[0], '');
     }
+    for (const val in validateForm.value[obj].values) {
+      if (validateForm.value[obj].values[val].valueId.length > 1) {
+        for (const valId of validateForm.value[obj].values[val].valueId) {
+          form.value.setFieldError(
+            valId,
+            'The option value in ' +
+              validateForm.value[obj].errMess +
+              ' has the same value ' +
+              validateForm.value[obj].values[val].errMess +
+              ' with others.'
+          );
+        }
+      } else {
+        form.value.setFieldError(
+          validateForm.value[obj].values[val].valueId[0],
+          ''
+        );
+      }
+    }
   }
 };
+
+const isDragableIcon = computed(() => (option: any) => {
+  // console.log('option: ', option);
+  //
+  let isDisabled = !!option.title;
+  const errors = form.value.getErrors() || {};
+  for (const errorKey in errors) {
+    // isError ||= errorKey.includes(option.id);
+    // console.log('errorKey: ', errorKey.includes(option.id));
+    isDisabled &&= errorKey.includes(option.id);
+  }
+
+  for (const value of option.values) {
+    isDisabled &&= !!value.title;
+  }
+  if (option.values.length === 0) {
+    isDisabled &&= false;
+  }
+
+  console.log('isDisabled: ', isDisabled);
+
+  return isDisabled;
+});
 </script>
 
 <style>
