@@ -194,7 +194,6 @@
       </template>
     </draggable>
   </VeeForm>
-  <pre>{{ options }}</pre>
   <div>
     <hr class="-mx-3" />
     <a
@@ -204,6 +203,40 @@
       >+ Add another option</a
     >
   </div>
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-gray-50">
+      <tr>
+        <th
+          scope="col"
+          class="py-2 px-3 text-left text-sm font-medium text-gray-700 tracking-wider"
+        >
+          Variant
+        </th>
+        <th
+          scope="col"
+          class="py-2 px-3 text-left text-sm font-medium text-gray-700 tracking-wider"
+        >
+          Price
+        </th>
+        <th
+          scope="col"
+          class="py-2 px-3 text-left text-sm font-medium text-gray-700 tracking-wider"
+        >
+          Available
+        </th>
+        <th
+          scope="col"
+          class="py-2 px-3 text-left text-sm font-medium text-gray-700 tracking-wider"
+        >
+          SKU
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr></tr>
+    </tbody>
+  </table>
+  <pre>{{ options }}</pre>
 </template>
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
@@ -433,25 +466,13 @@ const validateFormField = () => {
 };
 
 const isDragableIcon = computed(() => (option: any) => {
-  // console.log('option: ', option);
-  //
   let isDisabled = !!option.title;
-  const errors = form.value.getErrors() || {};
-  for (const errorKey in errors) {
-    // isError ||= errorKey.includes(option.id);
-    // console.log('errorKey: ', errorKey.includes(option.id));
-    isDisabled &&= errorKey.includes(option.id);
-  }
-
   for (const value of option.values) {
     isDisabled &&= !!value.title;
   }
   if (option.values.length === 0) {
     isDisabled &&= false;
   }
-
-  console.log('isDisabled: ', isDisabled);
-
   return isDisabled;
 });
 </script>

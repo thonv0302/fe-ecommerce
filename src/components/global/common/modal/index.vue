@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { XMarkIcon } from '@heroicons/vue/24/solid';
 const props = defineProps({
   show: {
@@ -77,14 +77,26 @@ const modalStyle = computed(() => {
 const body = ref<HTMLElement>();
 onMounted(() => {
   body.value = document.querySelector('body') as HTMLElement;
-  body.value.style.overflow = 'hidden';
 });
 
-onUnmounted(() => {
-  if (body.value && body.value.style) {
-    body.value.style.overflow = 'auto';
+watch(
+  () => props.show,
+  (newVal) => {
+    nextTick(() => {
+      if (newVal && body.value) {
+        body.value.style.overflow = 'hidden';
+      } else {
+        if (body.value) body.value.style.overflow = 'auto';
+      }
+    });
   }
-});
+);
+
+// onUnmounted(() => {
+//   if (body.value && body.value.style) {
+//     body.value.style.overflow = 'auto';
+//   }
+// });
 </script>
 
 <style>

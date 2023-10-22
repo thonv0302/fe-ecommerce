@@ -14,7 +14,7 @@
     <VeeForm v-slot="{ errors }" ref="form" class="mb-3" @submit="onSubmit">
       <div class="grid grid-cols-1 md:grid-cols-3 md:gap-x-4">
         <div class="col-span-2">
-          <!-- <div class="bg-white shadow-sm border rounded-md p-3">
+          <div class="bg-white shadow-sm border rounded-md p-3">
             <div class="space-y-1">
               <label for="title" class="block text-sm text-gray-700">
                 Title
@@ -69,8 +69,9 @@
                 />
               </VeeField>
             </div>
-          </div> -->
-          <!-- <div class="bg-white shadow-sm border rounded-md p-3 mt-3">
+          </div>
+
+          <div class="bg-white shadow-sm border rounded-md p-3 mt-3">
             <div class="sm:col-span-6">
               <label
                 for="cover-photo"
@@ -126,8 +127,9 @@
                 />
               </div>
             </div>
-          </div> -->
-          <!-- <div class="bg-white shadow-sm border rounded-md p-3 mt-3">
+          </div>
+
+          <div class="bg-white shadow-sm border rounded-md p-3 mt-3">
             <h6 class="text-sm font-semibold text-gray-700 mb-3">Pricing</h6>
             <div class="flex flex-col md:flex-row md:gap-x-4">
               <div class="space-y-1 flex-1">
@@ -267,8 +269,9 @@
                 </div>
               </div>
             </div>
-          </div> -->
-          <!-- <div class="bg-white shadow-sm border rounded-md p-3 mt-3">
+          </div>
+
+          <div class="bg-white shadow-sm border rounded-md p-3 mt-3">
             <h6 class="text-sm font-semibold text-gray-700 mb-3">Shipping</h6>
             <div class="flex flex-col md:flex-row md:gap-x-4">
               <div class="space-y-1 flex-1">
@@ -317,7 +320,7 @@
                 </div>
               </div>
             </div>
-          </div> -->
+          </div>
 
           <div class="bg-white shadow-sm border rounded-md p-3 mt-3">
             <h6 class="text-sm font-semibold text-gray-700 mb-3">Variants</h6>

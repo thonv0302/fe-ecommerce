@@ -98,3 +98,54 @@ const data2 = {
     ],
   },
 };
+
+function generateCombinations(arrays, currentCombo = [], currentIndex = 0) {
+  if (currentIndex === arrays.length) {
+    return [currentCombo.join(' / ')];
+  }
+
+  const currentArray = arrays[currentIndex];
+  const combinations = [];
+
+  for (let i = 0; i < currentArray.length; i++) {
+    const currentElement = currentArray[i];
+    const updatedCombo = [...currentCombo, currentElement];
+    const subCombinations = generateCombinations(
+      arrays,
+      updatedCombo,
+      currentIndex + 1
+    );
+    combinations.push(...subCombinations);
+  }
+
+  return combinations;
+}
+
+function cartesianProduct(arrays) {
+  if (!arrays || arrays.length === 0) {
+    return [];
+  }
+
+  function combine(currentArrayIndex, currentCombination) {
+    if (currentArrayIndex === arrays.length) {
+      return [currentCombination.join(' / ')];
+    }
+
+    const currentArray = arrays[currentArrayIndex];
+    const combinations = [];
+
+    for (let i = 0; i < currentArray.length; i++) {
+      const currentElement = currentArray[i];
+      const updatedCombination = [...currentCombination, currentElement];
+      const subCombinations = combine(
+        currentArrayIndex + 1,
+        updatedCombination
+      );
+      combinations.push(...subCombinations);
+    }
+
+    return combinations;
+  }
+
+  return combine(0, []);
+}
