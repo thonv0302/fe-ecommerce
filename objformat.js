@@ -39,10 +39,6 @@ const data = {
           'https://shopify-staged-uploads.storage.googleapis.com/tmp/63417123015/products/543fe214-05d5-4829-861c-35caff1ca078/tho.jpg',
       },
     ],
-    productPreferences: {
-      showSkuAndBarcode: false,
-      showInternationalShipping: true,
-    },
   },
 };
 
@@ -98,6 +94,29 @@ const data2 = {
     ],
   },
 };
+
+const getProduct = [
+  {
+    id: 'gid://shopify/ProductVariant/43324295970985',
+    price: '0',
+    compareAtPrice: null,
+    sku: '',
+    inventoryQuantity: 0,
+    position: 1,
+    image: null,
+    taxCode: '',
+    selectedOptions: [
+      {
+        name: 'Size',
+        value: 'L',
+      },
+      {
+        name: 'Color',
+        value: 'Black',
+      },
+    ],
+  },
+];
 
 function generateCombinations(arrays, currentCombo = [], currentIndex = 0) {
   if (currentIndex === arrays.length) {
