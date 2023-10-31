@@ -207,8 +207,17 @@
     <thead class="bg-gray-50">
       <tr>
         <th
+          class="py-2 items-center px-3 text-left text-sm font-medium text-gray-700 tracking-wider"
+        >
+          <input
+            ref="checkbox"
+            type="checkbox"
+            class="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+          />
+        </th>
+        <th
           scope="col"
-          class="py-2 px-3 text-left text-sm font-medium text-gray-700 tracking-wider"
+          class="py-2 items-center px-3 text-left text-sm font-medium text-gray-700 tracking-wider"
         >
           Variant
         </th>
@@ -233,13 +242,53 @@
       </tr>
     </thead>
     <tbody>
-      <tr></tr>
+      <tr v-for="variant in productVariants" :key="variant">
+        <td class="px-3 py-2">
+          <input
+            ref="checkbox"
+            type="checkbox"
+            class="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+          />
+        </td>
+        <td class="px-3 py-2">
+          <span class="text-sm font-medium text-gray-500">
+            {{ variant.variants.join('/') }}
+          </span>
+        </td>
+        <td class="px-3 py-2">
+          <input
+            type="number"
+            v-model="variant.price"
+            :class="[
+              'block w-full max-w-[150px] px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+            ]"
+          />
+        </td>
+        <td class="px-3 py-2">
+          <input
+            type="number"
+            v-model="variant.quantity"
+            :class="[
+              'block w-full max-w-[150px] px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+            ]"
+          />
+        </td>
+        <td class="px-3 py-2">
+          <input
+            type="text"
+            v-model="variant.sku"
+            :class="[
+              'block w-full max-w-[150px] px-2 py-1 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+            ]"
+          />
+        </td>
+      </tr>
     </tbody>
   </table>
-  <pre>{{ options }}</pre>
+  <pre>{{ savedValue }}</pre>
 </template>
 <script lang="ts" setup>
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import draggable from 'vuedraggable';
 import { TrashIcon } from '@heroicons/vue/24/solid';
 
@@ -377,7 +426,7 @@ const options = ref([
 ]);
 
 const validateForm = ref();
-
+const productVariants = ref<any>([]);
 watch(
   () => options.value,
   (newVal) => {
@@ -421,8 +470,51 @@ watch(
 
       return obj;
     }, {});
-
+    generateVariant();
     validateFormField();
+  },
+  {
+    deep: true,
+  }
+);
+
+const generateVariant = () => {
+  const values = options.value.map((option) =>
+    option.values.map((value) => value.title)
+  );
+  const newVariant = cartesianProduct(
+    values.filter((vaule) => vaule.length > 0)
+  );
+
+  newVariant.forEach((variant: any, idx: number) => {
+    const variants = JSON.parse(JSON.stringify(variant.variants));
+    const variantSort = variants.sort().join('/');
+    if (!savedValue.value[variantSort]) {
+      savedValue.value[variantSort] = {
+        price: 0,
+        quantity: 0,
+        sku: '',
+      };
+    }
+    productVariants.value[idx] = {
+      ...variant,
+      ...savedValue.value[variantSort],
+    };
+  });
+};
+
+watch(
+  () => productVariants.value,
+  (newVal) => {
+    newVal.forEach((val: any) => {
+      const variants = JSON.parse(JSON.stringify(val.variants));
+      const variantSort = variants.sort().join('/');
+      if (savedValue.value[variantSort]) {
+        savedValue.value[variantSort].price = val.price;
+        savedValue.value[variantSort].quantity = val.quantity;
+        savedValue.value[variantSort].sku = val.sku;
+      }
+    });
   },
   {
     deep: true,
@@ -474,6 +566,57 @@ const isDragableIcon = computed(() => (option: any) => {
     isDisabled &&= false;
   }
   return isDisabled;
+});
+
+type IVariant = {
+  price: number;
+  quantity: number;
+  sku: string;
+};
+
+const savedValue = ref<Record<string, IVariant>>({
+  // 'S/M': {
+  //   price: 0,
+  //   quantity: 0,
+  //   sku: '',
+  // },
+});
+
+function cartesianProduct(arrays: any) {
+  if (!arrays || arrays.length === 0) {
+    return [];
+  }
+
+  function combine(currentArrayIndex: any, currentCombination: any): any {
+    if (currentArrayIndex === arrays.length) {
+      return [
+        {
+          variants: currentCombination,
+        },
+      ];
+    }
+
+    const currentArray = arrays[currentArrayIndex];
+    const combinations = [];
+
+    for (let i = 0; i < currentArray.length; i++) {
+      const currentElement = currentArray[i];
+      const updatedCombination = [...currentCombination, currentElement];
+      const subCombinations = combine(
+        currentArrayIndex + 1,
+        updatedCombination
+      );
+      combinations.push(...subCombinations);
+    }
+
+    return combinations;
+  }
+
+  return combine(0, []);
+}
+
+onMounted(() => {
+  generateVariant();
 });
 </script>
 
