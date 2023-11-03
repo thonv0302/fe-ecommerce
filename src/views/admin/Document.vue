@@ -30,6 +30,9 @@ const root = ref({
         {
           name: 'source.js',
         },
+        {
+          name: 'source 1.js',
+        },
       ],
     },
   ],

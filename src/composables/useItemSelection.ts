@@ -22,10 +22,15 @@ export const useItemSelection = () => {
     });
   };
 
+  const addOne = (item: any) => {
+    items.add(item);
+  };
+
   return {
     items,
     clear,
     toggle,
+    addOne,
     addMultiple,
   };
 };
