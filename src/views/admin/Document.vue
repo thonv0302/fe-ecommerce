@@ -1,12 +1,14 @@
 <template>
   <div>
-    <TreeSelect :node="root" @onClick="nodeWasClick" />
+    <TreeSelect :node="root" @onClick="nodeWasClick" v-if="false" />
+    <Survey />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 import TreeSelect from '@/components/global/common/treeSelect/index.vue';
+import Survey from '@/components/survey/index.vue';
 
 const root = ref({
   name: '/',
@@ -16,6 +18,7 @@ const root = ref({
       children: [
         {
           name: 'song',
+          // children: [],
           // children: [
           //   {
           //     name: 'source.js',
@@ -29,11 +32,16 @@ const root = ref({
       children: [
         {
           name: 'source.js',
+          // children: [],
         },
         {
           name: 'source 1.js',
+          // children: [],
         },
       ],
+    },
+    {
+      name: 'test',
     },
   ],
 });
